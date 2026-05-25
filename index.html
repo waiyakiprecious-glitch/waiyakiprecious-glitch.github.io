@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Phancy Styles | New & Second-hand Clothes and Shoes in KES</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="site-header">
+    <div class="topbar">
+      <p>Buy new and second-hand clothes & shoes in Kenyan shillings | Free delivery on orders above KES 3,000</p>
+      <div class="top-actions">
+        <a href="#">Sell on Phancy</a>
+        <a href="#">Track Order</a>
+      </div>
+    </div>
+
+    <div class="header-main">
+      <div class="brand">
+        <h1>Phancy Styles</h1>
+        <span>Your clothes marketplace in Kenya</span>
+      </div>
+
+      <form class="search-bar">
+        <input type="search" placeholder="Search for clothes, shoes, brands, categories" />
+        <button type="submit">Search</button>
+      </form>
+
+      <div class="header-actions">
+        <span id="user-email-badge" class="user-email-badge"></span>
+        <a href="client-login.html">Client Login</a>
+        <a href="#">Cart(0)</a>
+      </div>
+    </div>
+
+    <nav class="main-nav">
+      <ul>
+        <li><a href="#">Home</a></li>
+        <li><a href="#categories">Categories</a></li>
+        <li><a href="#deals">Deals</a></li>
+        <li><a href="#products">Products</a></li>
+        <li><a href="#about">About</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <div class="hero-copy">
+      <span>Clothes Sale | New & Second-hand</span>
+      <h2>Find quality men’s, women’s, and kids’ clothing and shoes at affordable KES prices.</h2>
+      <p>Shop new arrivals, second-hand fashion, and stylish footwear for men, women, boys, and girls with fast delivery and secure checkout.</p>
+      <a href="#products" class="btn btn-primary">Shop Now</a>
+    </div>
+    <div class="hero-image">
+      <div class="promo-card">
+        <h3>Style Sale</h3>
+        <p>Clothes and shoes from KES 799</p>
+      </div>
+    </div>
+  </section>
+
+  <div id="refresh-notice" class="refresh-notice hidden">New stock has arrived — the product list is updated.</div>
+
+  <section id="categories" class="categories">
+    <h2>Shop by Category</h2>
+    <div class="category-grid" id="category-grid">
+      <div class="category-card" data-category="Women Clothing">Women&apos;s Clothing</div>
+      <div class="category-card" data-category="Women Shoes">Women&apos;s Shoes</div>
+      <div class="category-card" data-category="Men Clothing">Men&apos;s Clothing</div>
+      <div class="category-card" data-category="Men Shoes">Men&apos;s Shoes</div>
+      <div class="category-card" data-category="Children">Children</div>
+      <div class="category-card" data-category="All">All Products</div>
+    </div>
+  </section>
+
+  <section id="deals" class="feature-blocks">
+    <div class="feature-card">
+      <h3>Secure Payments</h3>
+      <p>Pay with mobile money, cards, or cash on delivery.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Fast Delivery</h3>
+      <p>Same-day delivery available in major cities.</p>
+    </div>
+    <div class="feature-card">
+      <h3>Customer Guarantee</h3>
+      <p>30-day returns and genuine product assurance.</p>
+    </div>
+  </section>
+
+  <section id="products" class="product-section">
+    <div class="section-header">
+      <h2>Featured Products</h2>
+      <a href="#" class="link-secondary">View All</a>
+    </div>
+
+    <div class="product-grid" id="product-grid"></div>
+  </section>
+  <section class="cart-section">
+    <div class="section-header">
+      <h2>Your Cart</h2>
+      <a href="#products" class="link-secondary">Continue Shopping</a>
+    </div>
+    <div class="cart-grid" id="cart-grid"></div>
+    <div class="checkout-bar">
+      <span id="checkout-total">Total: KES 0</span>
+      <button id="place-order-btn" class="btn btn-primary">Place Order</button>
+    </div>
+  </section>
+
+  <section id="about" class="about-section">
+    <div class="about-copy">
+      <h2>Why Choose Phancy Styles?</h2>
+      <p>Phancy Styles specializes in clothes and shoes, offering both new and second-hand options at Kenyan shilling prices.</p>
+      <ul>
+        <li>New fashion and pre-loved clothes for every budget</li>
+        <li>Men&apos;s, women&apos;s, boys&apos; and girls&apos; clothing all in one place</li>
+        <li>Clean products, transparent pricing, and trusted sellers</li>
+        <li>Convenient shopping with local delivery and support</li>
+      </ul>
+    </div>
+    <div class="about-image"></div>
+  </section>
+
+  <section class="newsletter">
+    <div>
+      <h2>Stay Updated</h2>
+      <p>Subscribe to get the latest offers and product launches.</p>
+    </div>
+    <form>
+      <input type="email" placeholder="Enter your email address" />
+      <button type="submit">Subscribe</button>
+    </form>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-grid">
+      <div>
+        <h3>Phancy Styles</h3>
+        <p>Trusted online shopping for Kenya with fast delivery and secure checkout.</p>
+      </div>
+      <div>
+        <h4>Company</h4>
+        <a href="#">About Us</a>
+        <a href="#">Careers</a>
+        <a href="#">Privacy</a>
+      </div>
+      <div>
+        <h4>Support</h4>
+        <a href="#">Help Center</a>
+        <a href="#">Shipping</a>
+        <a href="#">Returns</a>
+      </div>
+    </div>
+    <p class="footer-note">© 2026 Phancy Styles. All rights reserved.</p>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>
