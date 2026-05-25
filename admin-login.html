@@ -3,20 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Client Login | Phancy Styles</title>
+  <title>Admin Login | Phancy Styles</title>
   <link rel="stylesheet" href="style.css" />
   <style>
     .login-container {
       max-width: 400px;
       margin: 50px auto;
       padding: 40px;
-      border: 1px solid #ddd;
+      border: 1px solid #dc3545;
       border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 8px rgba(220,53,69,0.2);
+      background-color: #fff5f5;
     }
     .login-container h2 {
       text-align: center;
+      margin-bottom: 10px;
+      color: #dc3545;
+    }
+    .security-notice {
+      text-align: center;
+      font-size: 12px;
+      color: #666;
       margin-bottom: 30px;
+      padding: 10px;
+      background-color: #fff0f0;
+      border-radius: 4px;
     }
     .form-group {
       margin-bottom: 20px;
@@ -36,12 +47,12 @@
     }
     .form-group input:focus {
       outline: none;
-      border-color: #007bff;
+      border-color: #dc3545;
     }
     .login-btn {
       width: 100%;
       padding: 12px;
-      background-color: #007bff;
+      background-color: #dc3545;
       color: white;
       border: none;
       border-radius: 4px;
@@ -50,7 +61,7 @@
       transition: background-color 0.3s;
     }
     .login-btn:hover {
-      background-color: #0056b3;
+      background-color: #c82333;
     }
     .login-links {
       text-align: center;
@@ -58,7 +69,7 @@
       font-size: 14px;
     }
     .login-links a {
-      color: #007bff;
+      color: #dc3545;
       text-decoration: none;
       margin: 0 10px;
     }
@@ -70,38 +81,43 @@
 <body>
   <header class="site-header">
     <div class="topbar">
-      <p>Buy new and second-hand clothes & shoes in Kenyan shillings</p>
+      <p>Admin Area - Phancy Styles Management</p>
       <div class="top-actions">
         <a href="index.html">Back to Home</a>
-        <a href="admin-login.html">Admin Login</a>
+        <a href="client-login.html">Client Login</a>
       </div>
     </div>
 
     <div class="header-main">
       <div class="brand">
         <h1><a href="index.html" style="text-decoration: none; color: inherit;">Phancy Styles</a></h1>
-        <span>Your clothes marketplace in Kenya</span>
+        <span>Admin Portal</span>
       </div>
     </div>
   </header>
 
   <main>
     <div class="login-container">
-      <h2>Client Login</h2>
-      <form id="client-login-form">
+      <h2>Admin Login</h2>
+      <div class="security-notice">Authorized Personnel Only</div>
+      <form id="admin-login-form">
         <div class="form-group">
-          <label for="email">Email Address</label>
-          <input type="email" id="email" name="email" required placeholder="Enter your email" />
+          <label for="admin-email">Admin Email</label>
+          <input type="email" id="admin-email" name="email" required placeholder="Enter admin email" />
         </div>
         <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password" required placeholder="Enter your password" />
+          <label for="admin-password">Password</label>
+          <input type="password" id="admin-password" name="password" required placeholder="Enter password" />
         </div>
-        <button type="submit" class="login-btn">Login</button>
+        <div class="form-group">
+          <label for="admin-key">Admin Key (Optional)</label>
+          <input type="password" id="admin-key" name="admin-key" placeholder="Enter admin key for verification" />
+        </div>
+        <button type="submit" class="login-btn">Login to Dashboard</button>
       </form>
       <div class="login-links">
         <a href="#">Forgot Password?</a>
-        <a href="#">Sign Up</a>
+        <a href="#">Support</a>
       </div>
     </div>
   </main>
@@ -109,8 +125,8 @@
   <footer class="site-footer">
     <div class="footer-grid">
       <div>
-        <h3>Phancy Styles</h3>
-        <p>Trusted online shopping for Kenya</p>
+        <h3>Phancy Styles Admin</h3>
+        <p>Secure management portal</p>
       </div>
     </div>
     <p class="footer-note">© 2026 Phancy Styles. All rights reserved.</p>
