@@ -83,6 +83,43 @@ const saveCart = (cart) => {
   localStorage.setItem('phancyCart', JSON.stringify(cart));
 };
 
+const getOrders = () => {
+  const stored = localStorage.getItem('phancyOrders');
+  if (!stored) return [];
+  try {
+    return JSON.parse(stored);
+  } catch {
+    localStorage.removeItem('phancyOrders');
+    return [];
+  }
+};
+
+const saveOrders = (orders) => {
+  localStorage.setItem('phancyOrders', JSON.stringify(orders));
+};
+
+const createOrder = (cart, paymentMethod) => {
+  const clientEmail = localStorage.getItem('phancyClientEmail') || 'Guest';
+  const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const order = {
+    id: Date.now(),
+    placedAt: new Date().toISOString(),
+    clientEmail,
+    paymentMethod,
+    total,
+    items: cart.map((item) => ({
+      id: item.id,
+      name: item.name,
+      quantity: item.quantity,
+      price: item.price
+    }))
+  };
+  const orders = getOrders();
+  orders.unshift(order);
+  saveOrders(orders);
+  return order;
+};
+
 const getCategoryCounts = (products) => {
   const counts = {
     All: products.length,
@@ -145,6 +182,38 @@ const renderAdminInventory = () => {
     `)
     .join('');
   attachAdminRemoveButtons();
+};
+
+const renderAdminOrders = () => {
+  const list = document.getElementById('order-list');
+  const countsBox = document.getElementById('order-counts');
+  const orders = getOrders();
+  if (countsBox) {
+    countsBox.innerHTML = `<div class="inventory-count-item"><strong>Total Orders</strong>: ${orders.length}</div>`;
+  }
+  if (!list) return;
+  if (!orders.length) {
+    list.innerHTML = '<p>No orders have been placed yet.</p>';
+    return;
+  }
+  list.innerHTML = orders
+    .map((order) => `
+      <div class="order-card">
+        <h4>Order #${order.id}</h4>
+        <p><strong>Placed by:</strong> ${order.clientEmail}</p>
+        <p><strong>Payment method:</strong> ${order.paymentMethod}</p>
+        <p><strong>Total:</strong> KES ${order.total}</p>
+        <div class="order-items">
+          ${order.items
+            .map(
+              (item) => `<div class="order-item"><span>${item.name} x ${item.quantity}</span><span>KES ${item.price}</span></div>`
+            )
+            .join('')}
+        </div>
+        <p class="order-date">${new Date(order.placedAt).toLocaleString()}</p>
+      </div>
+    `)
+    .join('');
 };
 
 const attachAdminRemoveButtons = () => {
@@ -330,15 +399,18 @@ if (pageName === '' || pageName === 'index.html') {
     updateUserBadge();
     const placeOrderBtn = document.getElementById('place-order-btn');
     if (placeOrderBtn) {
+      const paymentMethodSelect = document.getElementById('payment-method');
       placeOrderBtn.addEventListener('click', () => {
         const cart = getCart();
         if (!cart.length) {
           alert('Your cart is empty. Add items before placing an order.');
           return;
         }
+        const paymentMethod = paymentMethodSelect?.value || 'M-PESA';
+        createOrder(cart, paymentMethod);
         saveCart([]);
         renderCart();
-        alert('Your order has been placed. Thank you!');
+        alert(`Your order has been placed using ${paymentMethod}. Thank you!`);
       });
     }
   }
@@ -446,6 +518,7 @@ if (pageName === 'admin.html' || pageName === 'admin-control.html') {
     showElement(adminDashboard);
     hideElement(adminLoginCard);
     renderAdminInventory();
+    renderAdminOrders();
     renderCategoryCounts();
     updateAdminBadge();
   } else {
