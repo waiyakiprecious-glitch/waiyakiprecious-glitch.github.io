@@ -107,6 +107,7 @@ const createOrder = (cart, paymentMethod) => {
     clientEmail,
     paymentMethod,
     total,
+    status: 'pending',
     items: cart.map((item) => ({
       id: item.id,
       name: item.name,
@@ -184,36 +185,93 @@ const renderAdminInventory = () => {
   attachAdminRemoveButtons();
 };
 
+const updateOrderStatus = (orderId, newStatus) => {
+  const orders = getOrders();
+  const order = orders.find(o => o.id === orderId);
+  if (order) {
+    order.status = newStatus;
+    saveOrders(orders);
+  }
+};
+
 const renderAdminOrders = () => {
-  const list = document.getElementById('order-list');
+  const pendingContainer = document.getElementById('pending-order-items');
+  const confirmedContainer = document.getElementById('confirmed-order-items');
+  const shippedContainer = document.getElementById('shipped-order-items');
   const countsBox = document.getElementById('order-counts');
   const orders = getOrders();
+  
   if (countsBox) {
-    countsBox.innerHTML = `<div class="inventory-count-item"><strong>Total Orders</strong>: ${orders.length}</div>`;
+    const pendingCount = orders.filter(o => o.status === 'pending').length;
+    const confirmedCount = orders.filter(o => o.status === 'confirmed').length;
+    const shippedCount = orders.filter(o => o.status === 'shipped').length;
+    countsBox.innerHTML = `
+      <div class="inventory-count-item"><strong>Pending</strong>: ${pendingCount}</div>
+      <div class="inventory-count-item"><strong>Confirmed</strong>: ${confirmedCount}</div>
+      <div class="inventory-count-item"><strong>Shipped</strong>: ${shippedCount}</div>
+    `;
   }
-  if (!list) return;
-  if (!orders.length) {
-    list.innerHTML = '<p>No orders have been placed yet.</p>';
-    return;
-  }
-  list.innerHTML = orders
-    .map((order) => `
-      <div class="order-card">
-        <h4>Order #${order.id}</h4>
-        <p><strong>Placed by:</strong> ${order.clientEmail}</p>
-        <p><strong>Payment method:</strong> ${order.paymentMethod}</p>
-        <p><strong>Total:</strong> KES ${order.total}</p>
-        <div class="order-items">
-          ${order.items
-            .map(
-              (item) => `<div class="order-item"><span>${item.name} x ${item.quantity}</span><span>KES ${item.price}</span></div>`
-            )
-            .join('')}
-        </div>
-        <p class="order-date">${new Date(order.placedAt).toLocaleString()}</p>
+
+  const createOrderCard = (order, statusButtons) => `
+    <div class="order-card">
+      <h4>Order #${order.id}</h4>
+      <p><strong>Placed by:</strong> ${order.clientEmail}</p>
+      <p><strong>Payment method:</strong> ${order.paymentMethod}</p>
+      <p><strong>Total:</strong> KES ${order.total}</p>
+      <p><strong>Status:</strong> <span style="font-weight:bold; color:#0284c7;">${order.status.toUpperCase()}</span></p>
+      <div class="order-items">
+        ${order.items.map(item => `<div class="order-item"><span>${item.name} x ${item.quantity}</span><span>KES ${item.price}</span></div>`).join('')}
       </div>
-    `)
-    .join('');
+      <p class="order-date">${new Date(order.placedAt).toLocaleString()}</p>
+      <div style="margin-top:10px; display:flex; gap:10px;">
+        ${statusButtons}
+      </div>
+    </div>
+  `;
+
+  if (pendingContainer) {
+    const pendingOrders = orders.filter(o => o.status === 'pending');
+    pendingContainer.innerHTML = pendingOrders.length ? 
+      pendingOrders.map(order => createOrderCard(order, 
+        `<button class="btn btn-primary btn-confirm-order" data-order-id="${order.id}">Confirm Order</button>`
+      )).join('') : '<p>No pending orders.</p>';
+  }
+
+  if (confirmedContainer) {
+    const confirmedOrders = orders.filter(o => o.status === 'confirmed');
+    confirmedContainer.innerHTML = confirmedOrders.length ? 
+      confirmedOrders.map(order => createOrderCard(order, 
+        `<button class="btn btn-primary btn-shipped-order" data-order-id="${order.id}">Mark as Shipped</button>`
+      )).join('') : '<p>No confirmed orders.</p>';
+  }
+
+  if (shippedContainer) {
+    const shippedOrders = orders.filter(o => o.status === 'shipped');
+    shippedContainer.innerHTML = shippedOrders.length ? 
+      shippedOrders.map(order => createOrderCard(order, 
+        `<span style="color:#059669; font-weight:bold;">✓ Shipped</span>`
+      )).join('') : '<p>No shipped orders.</p>';
+  }
+
+  attachOrderStatusButtons();
+};
+
+const attachOrderStatusButtons = () => {
+  document.querySelectorAll('.btn-confirm-order').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const orderId = parseInt(btn.dataset.orderId);
+      updateOrderStatus(orderId, 'confirmed');
+      renderAdminOrders();
+    });
+  });
+
+  document.querySelectorAll('.btn-shipped-order').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const orderId = parseInt(btn.dataset.orderId);
+      updateOrderStatus(orderId, 'shipped');
+      renderAdminOrders();
+    });
+  });
 };
 
 const attachAdminRemoveButtons = () => {
