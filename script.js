@@ -7,6 +7,15 @@ const adminLoggedIn = localStorage.getItem('phancyAdminLoggedIn') === 'true';
 const clientEmail = localStorage.getItem('phancyClientEmail') || '';
 const adminEmail = localStorage.getItem('phancyAdminEmail') || '';
 
+// Enforce login: redirect to client login for any client-facing page
+// Allow admin pages to load so they can show their own login form
+const publicPages = ['client-login.html', 'admin.html', 'admin-control.html'];
+if (!clientLoggedIn && !adminLoggedIn) {
+  if (!publicPages.includes(pageName)) {
+    window.location.href = 'client-login.html';
+  }
+}
+
 const defaultProducts = [
   { id: 1, name: "Women's Summer Dress", category: 'Women Clothing', type: 'Dress', condition: 'New', size: 'M', price: 1499, imageUrl: '', description: 'Light summer dress for women.' },
   { id: 2, name: 'Second-hand Denim Jacket', category: 'Women Clothing', type: 'Jacket', condition: 'Second-hand', size: 'L', price: 799, imageUrl: '', description: 'Classic denim jacket.' },
@@ -318,6 +327,7 @@ if (pageName === '' || pageName === 'index.html') {
     setupCategoryFilters();
     setupProductRefresh();
     renderCart();
+    updateUserBadge();
     const placeOrderBtn = document.getElementById('place-order-btn');
     if (placeOrderBtn) {
       placeOrderBtn.addEventListener('click', () => {
@@ -342,6 +352,24 @@ if (pageName === 'client-login.html') {
   const loginForm = document.querySelector('.client-login-form');
   const signupFormElement = document.querySelector('.client-signup-form');
   const signupToggle = document.querySelector('.btn-toggle-signup');
+
+  const setFormMessage = (formEl, message, type = 'error') => {
+    if (!formEl) return;
+    const box = formEl.querySelector('.signup-messages');
+    if (box) {
+      box.textContent = message;
+      box.classList.remove('error', 'success');
+      box.classList.add(type);
+    } else {
+      console[type === 'error' ? 'error' : 'log'](message);
+    }
+  };
+
+  const clearFormMessage = (formEl) => {
+    if (!formEl) return;
+    const box = formEl.querySelector('.signup-messages');
+    if (box) box.textContent = '';
+  };
 
   if (signupToggle && signupFormElement) {
     signupToggle.addEventListener('click', () => {
@@ -372,18 +400,37 @@ if (pageName === 'client-login.html') {
   if (signupFormElement) {
     signupFormElement.addEventListener('submit', (event) => {
       event.preventDefault();
+      clearFormMessage(signupFormElement);
       const passwords = signupFormElement.querySelectorAll('input[type="password"]');
-      if (passwords.length >= 2 && passwords[0].value !== passwords[1].value) {
-        alert('Passwords do not match.');
+      if (passwords.length < 2) {
+        setFormMessage(signupFormElement, 'Please provide a password and confirmation.', 'error');
+        return;
+      }
+      if (passwords[0].value !== passwords[1].value) {
+        setFormMessage(signupFormElement, 'Passwords do not match.', 'error');
+        passwords[0].focus();
         return;
       }
       const emailInput = signupFormElement.querySelector('input[name="client-email"]');
       const email = emailInput?.value.trim() || '';
-      if (email) {
-        localStorage.setItem('phancyClientEmail', email);
+      if (!email) {
+        setFormMessage(signupFormElement, 'Email is required.', 'error');
+        emailInput?.focus();
+        return;
       }
+      // simple email validation
+      if (!/^\S+@\S+\.\S+$/.test(email)) {
+        setFormMessage(signupFormElement, 'Enter a valid email address.', 'error');
+        emailInput?.focus();
+        return;
+      }
+      localStorage.setItem('phancyClientEmail', email);
       localStorage.setItem('phancyClientLoggedIn', 'true');
-      window.location.href = 'index.html';
+      console.log('Signup successful for', email);
+      setFormMessage(signupFormElement, 'Account created — redirecting...', 'success');
+      setTimeout(() => {
+        window.location.href = 'index.html';
+      }, 700);
     });
   }
 }
@@ -400,6 +447,7 @@ if (pageName === 'admin.html' || pageName === 'admin-control.html') {
     hideElement(adminLoginCard);
     renderAdminInventory();
     renderCategoryCounts();
+    updateAdminBadge();
   } else {
     hideElement(adminDashboard);
     showElement(adminLoginCard);
@@ -408,11 +456,14 @@ if (pageName === 'admin.html' || pageName === 'admin-control.html') {
   if (adminLoginForm) {
     adminLoginForm.addEventListener('submit', (event) => {
       event.preventDefault();
-        const emailInput = adminLoginForm.querySelector('input[name="admin-email"]');
-        const email = emailInput?.value.trim() || '';
-        if (email) {
-          localStorage.setItem('phancyAdminEmail', email);
-        }
+      const emailInput = adminLoginForm.querySelector('input[name="admin-email"]');
+      const email = emailInput?.value.trim() || '';
+      if (email) {
+        localStorage.setItem('phancyAdminEmail', email);
+      }
+      localStorage.setItem('phancyAdminLoggedIn', 'true');
+      window.location.reload();
+    });
   }
 
   if (logoutButton) {

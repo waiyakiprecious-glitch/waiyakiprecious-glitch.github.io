@@ -30,6 +30,14 @@ input {
   border-bottom: 1px solid #e2e8f0;
 }
 
+.header-main {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 40px;
+}
+
 .topbar {
   display: flex;
   justify-content: space-between;
@@ -84,6 +92,39 @@ input {
   margin-bottom: 18px;
   color: #374151;
   font-weight: 600;
+}
+
+.signup-messages {
+  margin-bottom: 12px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+}
+.signup-messages.error {
+  background: #fff1f2;
+  color: #991b1b;
+  border: 1px solid #fecaca;
+}
+.signup-messages.success {
+  background: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #bbf7d0;
+}
+.login-switch {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: #475569;
+}
+.login-switch a {
+  color: #2563eb;
+  font-weight: 700;
+  text-decoration: none;
+}
+.login-switch a:hover {
+  text-decoration: underline;
 }
 
 .auth-form input {
