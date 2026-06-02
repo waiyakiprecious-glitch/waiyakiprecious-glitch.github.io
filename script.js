@@ -53,6 +53,8 @@ const getProducts = () => {
 const saveProducts = (products) => {
   localStorage.setItem('phancyProducts', JSON.stringify(products));
   localStorage.setItem('phancyProductsLastUpdated', Date.now().toString());
+  // Dispatch custom event to notify listeners of product changes
+  window.dispatchEvent(new CustomEvent('phancyProductsUpdated', { detail: products }));
 };
 
 const updateUserBadge = () => {
@@ -435,13 +437,20 @@ const setupProductRefresh = () => {
     }
   };
 
+  // Listen for storage changes from other tabs/windows
   window.addEventListener('storage', (event) => {
     if (event.key === 'phancyProducts' || event.key === 'phancyProductsLastUpdated') {
       refreshProducts();
     }
   });
 
-  setInterval(refreshProducts, 3000);
+  // Listen for custom event from same window (admin adds product)
+  window.addEventListener('phancyProductsUpdated', () => {
+    refreshProducts();
+  });
+
+  // Poll for changes every 1 second for faster updates
+  setInterval(refreshProducts, 1000);
 };
 
 if (pageName === '' || pageName === 'index.html') {
@@ -638,7 +647,7 @@ if (pageName === 'admin.html' || pageName === 'admin-control.html') {
         const products = getProducts();
         products.unshift(newProduct);
         saveProducts(products);
-        alert('Product added successfully. Refresh the client site to view it.');
+        alert('Product added successfully. The client site will auto-update within seconds.');
         stockForm.reset();
         renderAdminInventory();
         renderCategoryCounts();
