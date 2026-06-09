@@ -1,0 +1,48 @@
+{
+  "products": [
+    { 
+      "id": 1, 
+      "name": "Women's Summer Dress", 
+      "category": "Women Clothing", 
+      "type": "Dress", 
+      "condition": "New", 
+      "size": "M", 
+      "price": 1499, 
+      "imageUrl": "", 
+      "description": "Light summer dress for women." 
+    },
+    { 
+      "id": 2, 
+      "name": "Second-hand Denim Jacket", 
+      "category": "Women Clothing", 
+      "type": "Jacket", 
+      "condition": "Second-hand", 
+      "size": "L", 
+      "price": 799, 
+      "imageUrl": "", 
+      "description": "Classic denim jacket." 
+    },
+    { 
+      "id": 3, 
+      "name": "Men's Leather Sneakers", 
+      "category": "Men Shoes", 
+      "type": "Sneakers", 
+      "condition": "New", 
+      "size": "42", 
+      "price": 2999, 
+      "imageUrl": "", 
+      "description": "Comfortable leather sneakers." 
+    },
+    { 
+      "id": 4, 
+      "name": "Kids' Sport Shoes", 
+      "category": "Children", 
+      "type": "Shoes", 
+      "condition": "New", 
+      "size": "32", 
+      "price": 1199, 
+      "imageUrl": "", 
+      "description": "Sporty shoes for children." 
+    }
+  ]
+}
