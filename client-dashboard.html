@@ -156,8 +156,26 @@
       border-radius: 4px;
       margin-bottom: 15px;
       display: flex;
-      justify-content: space-between;
+      gap: 15px;
+      align-items: flex-start;
+    }
+    .product-item-image {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      background-color: #e9ecef;
+      border-radius: 4px;
+      background-size: cover;
+      background-position: center;
+      display: flex;
       align-items: center;
+      justify-content: center;
+      color: #666;
+      font-size: 12px;
+      text-align: center;
+    }
+    .product-item-details {
+      flex: 1;
     }
     .remove-btn {
       background-color: #dc3545;
@@ -256,20 +274,7 @@
         <!-- Wishlist Tab -->
         <div id="wishlist" class="tab-content">
           <h2>My Wishlist</h2>
-          <div class="product-item">
-            <div>
-              <strong>Classic Blue Denim Jacket</strong><br>
-              <small>Men's Clothing • KES 2,499</small>
-            </div>
-            <button class="remove-btn">Remove</button>
-          </div>
-          <div class="product-item">
-            <div>
-              <strong>Women's Leather Boots</strong><br>
-              <small>Women's Shoes • KES 4,999</small>
-            </div>
-            <button class="remove-btn">Remove</button>
-          </div>
+          <div id="wishlist-items"></div>
         </div>
 
         <!-- Addresses Tab -->
@@ -329,6 +334,32 @@
   </div>
 
   <script>
+    function renderWishlist() {
+      const wishlistContainer = document.getElementById('wishlist-items');
+      const products = JSON.parse(localStorage.getItem('phancyProducts') || '[]');
+      
+      if (!products.length) {
+        wishlistContainer.innerHTML = '<p>No products available yet.</p>';
+        return;
+      }
+      
+      wishlistContainer.innerHTML = products.map(product => {
+        const imageStyle = product.imageUrl ? `background-image: url('${product.imageUrl}');` : '';
+        const imageContent = product.imageUrl ? '' : 'No image';
+        return `
+          <div class="product-item">
+            <div class="product-item-image" style="${imageStyle}">${imageContent}</div>
+            <div class="product-item-details">
+              <strong>${product.name}</strong><br>
+              <small>${product.category} • ${product.condition} • ${product.size}</small><br>
+              <small><strong>KES ${product.price}</strong></small>
+            </div>
+            <button class="remove-btn">Add to Cart</button>
+          </div>
+        `;
+      }).join('');
+    }
+
     function showTab(tabName) {
       // Hide all tabs
       const tabs = document.querySelectorAll('.tab-content');
@@ -343,6 +374,11 @@
 
       // Add active class to clicked button
       event.target.classList.add('active');
+
+      // Render wishlist if we're showing it
+      if (tabName === 'wishlist') {
+        renderWishlist();
+      }
     }
 
     function logout() {
@@ -350,6 +386,9 @@
         window.location.href = 'client-login.html';
       }
     }
+
+    // Initial render on page load
+    renderWishlist();
   </script>
 </body>
 </html>
