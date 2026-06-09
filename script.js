@@ -36,21 +36,37 @@ const categoryLabels = {
 
 const showElement = (el) => el && el.classList.remove('hidden');
 const hideElement = (el) => el && el.classList.add('hidden');
-const getProducts = () => {
-  const stored = localStorage.getItem('phancyProducts');
-  if (!stored) {
-    localStorage.setItem('phancyProducts', JSON.stringify(defaultProducts));
-    return defaultProducts;
-  }
+
+// Load products from server (products.json)
+const getProducts = async () => {
   try {
-    return JSON.parse(stored);
+    const response = await fetch('products.json');
+    if (response.ok) {
+      const data = await response.json();
+      const products = data.products || defaultProducts;
+      localStorage.setItem('phancyProducts', JSON.stringify(products));
+      return products;
+    }
   } catch (error) {
-    localStorage.setItem('phancyProducts', JSON.stringify(defaultProducts));
-    return defaultProducts;
+    console.log('Could not load from server, using localStorage');
   }
+  
+  // Fallback to localStorage
+  const stored = localStorage.getItem('phancyProducts');
+  if (stored) {
+    try {
+      return JSON.parse(stored);
+    } catch (error) {
+      localStorage.setItem('phancyProducts', JSON.stringify(defaultProducts));
+      return defaultProducts;
+    }
+  }
+  
+  localStorage.setItem('phancyProducts', JSON.stringify(defaultProducts));
+  return defaultProducts;
 };
 
-const saveProducts = (products) => {
+const saveProducts = async (products) => {
   localStorage.setItem('phancyProducts', JSON.stringify(products));
   localStorage.setItem('phancyProductsLastUpdated', Date.now().toString());
   // Dispatch custom event to notify listeners of product changes
@@ -140,8 +156,9 @@ const getCategoryCounts = (products) => {
   return counts;
 };
 
-const renderCategoryCounts = () => {
-  const counts = getCategoryCounts(getProducts());
+const renderCategoryCounts = async () => {
+  const products = await getProducts();
+  const counts = getCategoryCounts(products);
   const cards = document.querySelectorAll('.category-card');
   cards.forEach((card) => {
     const category = card.dataset.category;
@@ -151,10 +168,10 @@ const renderCategoryCounts = () => {
   });
 };
 
-const renderAdminInventory = () => {
+const renderAdminInventory = async () => {
   const list = document.getElementById('inventory-list');
   const countsBox = document.getElementById('category-counts');
-  const products = getProducts();
+  const products = await getProducts();
   const counts = getCategoryCounts(products);
   if (countsBox) {
     countsBox.innerHTML = Object.keys(categoryLabels)
@@ -279,14 +296,14 @@ const attachOrderStatusButtons = () => {
 const attachAdminRemoveButtons = () => {
   const removeButtons = document.querySelectorAll('.btn-remove-admin');
   removeButtons.forEach((button) => {
-    button.addEventListener('click', () => {
+    button.addEventListener('click', async () => {
       const id = parseInt(button.dataset.productId, 10);
-      const products = getProducts().filter((item) => item.id !== id);
-      saveProducts(products);
-      renderAdminInventory();
-      renderCategoryCounts();
+      const products = (await getProducts()).filter((item) => item.id !== id);
+      await saveProducts(products);
+      await renderAdminInventory();
+      await renderCategoryCounts();
       if (pageName === '' || pageName === 'index.html') {
-        renderProducts(filterProducts(getProducts(), activeCategory));
+        await renderProducts(await filterProducts(await getProducts(), activeCategory));
       }
     });
   });
@@ -310,7 +327,7 @@ const createProductCard = (product) => {
   return article;
 };
 
-const renderProducts = (products) => {
+const renderProducts = async (products) => {
   const grid = document.getElementById('product-grid');
   if (!grid) return;
   grid.innerHTML = '';
@@ -328,9 +345,9 @@ const renderProducts = (products) => {
 const attachCartButtons = () => {
   const buttons = document.querySelectorAll('.btn-add');
   buttons.forEach((button) => {
-    button.addEventListener('click', () => {
+    button.addEventListener('click', async () => {
       const id = parseInt(button.dataset.productId, 10);
-      const products = getProducts();
+      const products = await getProducts();
       const product = products.find((item) => item.id === id);
       if (!product) return;
       const cart = getCart();
@@ -390,7 +407,7 @@ const attachRemoveButtons = () => {
   });
 };
 
-const filterProducts = (products, category) => {
+const filterProducts = async (products, category) => {
   if (category === 'All') return products;
   return products.filter((product) => {
     if (category === 'Children') {
@@ -400,21 +417,23 @@ const filterProducts = (products, category) => {
   });
 };
 
-const setupCategoryFilters = () => {
+const setupCategoryFilters = async () => {
   const cards = document.querySelectorAll('.category-card');
   cards.forEach((card) => {
     if (card.dataset.category === activeCategory) {
       card.classList.add('active');
     }
-    card.addEventListener('click', () => {
+    card.addEventListener('click', async () => {
       cards.forEach((item) => item.classList.remove('active'));
       card.classList.add('active');
       activeCategory = card.dataset.category;
-      renderProducts(filterProducts(getProducts(), activeCategory));
+      const products = await getProducts();
+      const filtered = await filterProducts(products, activeCategory);
+      await renderProducts(filtered);
       document.getElementById('products').scrollIntoView({ behavior: 'smooth' });
     });
   });
-  renderCategoryCounts();
+  await renderCategoryCounts();
 };
 
 const showRefreshNotice = () => {
@@ -424,15 +443,17 @@ const showRefreshNotice = () => {
   setTimeout(() => notice.classList.add('hidden'), 5000);
 };
 
-const setupProductRefresh = () => {
+const setupProductRefresh = async () => {
   let lastProducts = localStorage.getItem('phancyProducts');
 
-  const refreshProducts = () => {
+  const refreshProducts = async () => {
     const current = localStorage.getItem('phancyProducts');
     if (current && current !== lastProducts) {
       lastProducts = current;
-      renderCategoryCounts();
-      renderProducts(filterProducts(getProducts(), activeCategory));
+      await renderCategoryCounts();
+      const products = await getProducts();
+      const filtered = await filterProducts(products, activeCategory);
+      await renderProducts(filtered);
       showRefreshNotice();
     }
   };
@@ -457,29 +478,32 @@ if (pageName === '' || pageName === 'index.html') {
   if (!clientLoggedIn) {
     window.location.href = 'client-login.html';
   } else {
-    const products = getProducts();
-    renderCategoryCounts();
-    renderProducts(filterProducts(products, activeCategory));
-    setupCategoryFilters();
-    setupProductRefresh();
-    renderCart();
-    updateUserBadge();
-    const placeOrderBtn = document.getElementById('place-order-btn');
-    if (placeOrderBtn) {
-      const paymentMethodSelect = document.getElementById('payment-method');
-      placeOrderBtn.addEventListener('click', () => {
-        const cart = getCart();
-        if (!cart.length) {
-          alert('Your cart is empty. Add items before placing an order.');
-          return;
-        }
-        const paymentMethod = paymentMethodSelect?.value || 'M-PESA';
-        createOrder(cart, paymentMethod);
-        saveCart([]);
-        renderCart();
-        alert(`Your order has been placed using ${paymentMethod}. Thank you!`);
-      });
-    }
+    (async () => {
+      const products = await getProducts();
+      const filtered = await filterProducts(products, activeCategory);
+      await renderCategoryCounts();
+      await renderProducts(filtered);
+      await setupCategoryFilters();
+      setupProductRefresh();
+      renderCart();
+      updateUserBadge();
+      const placeOrderBtn = document.getElementById('place-order-btn');
+      if (placeOrderBtn) {
+        const paymentMethodSelect = document.getElementById('payment-method');
+        placeOrderBtn.addEventListener('click', () => {
+          const cart = getCart();
+          if (!cart.length) {
+            alert('Your cart is empty. Add items before placing an order.');
+            return;
+          }
+          const paymentMethod = paymentMethodSelect?.value || 'M-PESA';
+          createOrder(cart, paymentMethod);
+          saveCart([]);
+          renderCart();
+          alert(`Your order has been placed using ${paymentMethod}. Thank you!`);
+        });
+      }
+    })();
   }
 }
 
@@ -584,10 +608,12 @@ if (pageName === 'admin.html' || pageName === 'admin-control.html') {
   if (adminLoggedIn) {
     showElement(adminDashboard);
     hideElement(adminLoginCard);
-    renderAdminInventory();
-    renderAdminOrders();
-    renderCategoryCounts();
-    updateAdminBadge();
+    (async () => {
+      await renderAdminInventory();
+      renderAdminOrders();
+      await renderCategoryCounts();
+      updateAdminBadge();
+    })();
   } else {
     hideElement(adminDashboard);
     showElement(adminLoginCard);
@@ -614,7 +640,7 @@ if (pageName === 'admin.html' || pageName === 'admin-control.html') {
   }
 
   if (stockForm) {
-    stockForm.addEventListener('submit', (event) => {
+    stockForm.addEventListener('submit', async (event) => {
       event.preventDefault();
       const formData = new FormData(stockForm);
       const name = formData.get('item-name')?.toString().trim() || '';
@@ -628,7 +654,7 @@ if (pageName === 'admin.html' || pageName === 'admin-control.html') {
       const uploadInput = stockForm.querySelector('input[name="upload-image"]');
       const file = uploadInput?.files?.[0];
 
-      const saveNewProduct = (imageUrl) => {
+      const saveNewProduct = async (imageUrl) => {
         const newProduct = {
           id: Date.now(),
           name,
@@ -644,13 +670,13 @@ if (pageName === 'admin.html' || pageName === 'admin-control.html') {
           alert('Product name and price are required.');
           return;
         }
-        const products = getProducts();
+        const products = await getProducts();
         products.unshift(newProduct);
-        saveProducts(products);
+        await saveProducts(products);
         alert('Product added successfully. The client site will auto-update within seconds.');
         stockForm.reset();
-        renderAdminInventory();
-        renderCategoryCounts();
+        await renderAdminInventory();
+        await renderCategoryCounts();
       };
 
       if (file) {
@@ -658,7 +684,7 @@ if (pageName === 'admin.html' || pageName === 'admin-control.html') {
         reader.onload = () => saveNewProduct(reader.result?.toString() || imageUrlValue);
         reader.readAsDataURL(file);
       } else {
-        saveNewProduct(imageUrlValue);
+        await saveNewProduct(imageUrlValue);
       }
     });
   }
