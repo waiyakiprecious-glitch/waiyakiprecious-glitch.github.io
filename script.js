@@ -7,20 +7,11 @@ const adminLoggedIn = localStorage.getItem('phancyAdminLoggedIn') === 'true';
 const clientEmail = localStorage.getItem('phancyClientEmail') || '';
 const adminEmail = localStorage.getItem('phancyAdminEmail') || '';
 
-// Enforce login: redirect to client login for any client-facing page
-// Allow admin pages to load so they can show their own login form
-const publicPages = ['client-login.html', 'admin.html', 'admin-control.html'];
-if (!clientLoggedIn && !adminLoggedIn) {
-  if (!publicPages.includes(pageName)) {
-    window.location.href = 'client-login.html';
-  }
-}
-
 const defaultProducts = [
-  { id: 1, name: "Women's Summer Dress", category: 'Women Clothing', type: 'Dress', condition: 'New', size: 'M', price: 1499, imageUrl: '', description: 'Light summer dress for women.' },
-  { id: 2, name: 'Second-hand Denim Jacket', category: 'Women Clothing', type: 'Jacket', condition: 'Second-hand', size: 'L', price: 799, imageUrl: '', description: 'Classic denim jacket.' },
-  { id: 3, name: "Men's Leather Sneakers", category: 'Men Shoes', type: 'Sneakers', condition: 'New', size: '42', price: 2999, imageUrl: '', description: 'Comfortable leather sneakers.' },
-  { id: 4, name: "Kids' Sport Shoes", category: 'Children', type: 'Shoes', condition: 'New', size: '32', price: 1199, imageUrl: '', description: 'Sporty shoes for children.' }
+  { id: 1, name: "Women's Summer Dress", category: 'Women Clothing', type: 'Dress', condition: 'New', size: 'M', price: 1499, imageUrl: 'https://picsum.photos/seed/dress/800/600', description: 'Light summer dress for women.' },
+  { id: 2, name: 'Second-hand Denim Jacket', category: 'Women Clothing', type: 'Jacket', condition: 'Second-hand', size: 'L', price: 799, imageUrl: 'https://picsum.photos/seed/denim/800/600', description: 'Classic denim jacket.' },
+  { id: 3, name: "Men's Leather Sneakers", category: 'Men Shoes', type: 'Sneakers', condition: 'New', size: '42', price: 2999, imageUrl: 'https://picsum.photos/seed/sneakers/800/600', description: 'Comfortable leather sneakers.' },
+  { id: 4, name: "Kids' Sport Shoes", category: 'Children', type: 'Shoes', condition: 'New', size: '32', price: 1199, imageUrl: 'https://picsum.photos/seed/kids/800/600', description: 'Sporty shoes for children.' }
 ];
 
 let activeCategory = 'All';
@@ -475,36 +466,37 @@ const setupProductRefresh = async () => {
 };
 
 if (pageName === '' || pageName === 'index.html') {
-  if (!clientLoggedIn) {
-    window.location.href = 'client-login.html';
-  } else {
-    (async () => {
-      const products = await getProducts();
-      const filtered = await filterProducts(products, activeCategory);
-      await renderCategoryCounts();
-      await renderProducts(filtered);
-      await setupCategoryFilters();
-      setupProductRefresh();
-      renderCart();
-      updateUserBadge();
-      const placeOrderBtn = document.getElementById('place-order-btn');
-      if (placeOrderBtn) {
-        const paymentMethodSelect = document.getElementById('payment-method');
-        placeOrderBtn.addEventListener('click', () => {
-          const cart = getCart();
-          if (!cart.length) {
-            alert('Your cart is empty. Add items before placing an order.');
-            return;
-          }
-          const paymentMethod = paymentMethodSelect?.value || 'M-PESA';
-          createOrder(cart, paymentMethod);
-          saveCart([]);
-          renderCart();
-          alert(`Your order has been placed using ${paymentMethod}. Thank you!`);
-        });
-      }
-    })();
-  }
+  (async () => {
+    const products = await getProducts();
+    const filtered = await filterProducts(products, activeCategory);
+    await renderCategoryCounts();
+    await renderProducts(filtered);
+    await setupCategoryFilters();
+    setupProductRefresh();
+    renderCart();
+    updateUserBadge();
+    const placeOrderBtn = document.getElementById('place-order-btn');
+    if (placeOrderBtn) {
+      const paymentMethodSelect = document.getElementById('payment-method');
+      placeOrderBtn.addEventListener('click', () => {
+        const cart = getCart();
+        if (!cart.length) {
+          alert('Your cart is empty. Add items before placing an order.');
+          return;
+        }
+        const currentClientLoggedIn = localStorage.getItem('phancyClientLoggedIn') === 'true';
+        if (!currentClientLoggedIn) {
+          window.location.href = 'client-login.html';
+          return;
+        }
+        const paymentMethod = paymentMethodSelect?.value || 'M-PESA';
+        createOrder(cart, paymentMethod);
+        saveCart([]);
+        renderCart();
+        alert(`Your order has been placed using ${paymentMethod}. Thank you!`);
+      });
+    }
+  })();
 }
 
 if (pageName === 'client-login.html') {
