@@ -28,31 +28,34 @@ const categoryLabels = {
 const showElement = (el) => el && el.classList.remove('hidden');
 const hideElement = (el) => el && el.classList.add('hidden');
 
-// Load products from server (products.json)
+// Load products from server (products.json) — prefer localStorage so admin edits persist
 const getProducts = async () => {
-  try {
-    const response = await fetch('products.json');
-    if (response.ok) {
-      const data = await response.json();
-      const products = data.products || defaultProducts;
-      localStorage.setItem('phancyProducts', JSON.stringify(products));
-      return products;
-    }
-  } catch (error) {
-    console.log('Could not load from server, using localStorage');
-  }
-  
-  // Fallback to localStorage
+  // Prefer the localStorage copy so admin edits persist in this browser
   const stored = localStorage.getItem('phancyProducts');
   if (stored) {
     try {
       return JSON.parse(stored);
     } catch (error) {
-      localStorage.setItem('phancyProducts', JSON.stringify(defaultProducts));
-      return defaultProducts;
+      console.warn('phancyProducts in localStorage corrupted, removing and falling back to fetch');
+      localStorage.removeItem('phancyProducts');
     }
   }
-  
+
+  // No local copy — try loading the shipped products.json (first-time load)
+  try {
+    const response = await fetch('products.json');
+    if (response.ok) {
+      const data = await response.json();
+      const products = data.products || defaultProducts;
+      // Cache server list locally so admin edits override on subsequent loads
+      localStorage.setItem('phancyProducts', JSON.stringify(products));
+      return products;
+    }
+  } catch (error) {
+    console.log('Could not load products.json, using fallback/default products');
+  }
+
+  // Final fallback to defaults
   localStorage.setItem('phancyProducts', JSON.stringify(defaultProducts));
   return defaultProducts;
 };
@@ -103,8 +106,14 @@ const getOrders = () => {
   }
 };
 
+// notify other pages when orders change
 const saveOrders = (orders) => {
   localStorage.setItem('phancyOrders', JSON.stringify(orders));
+  try {
+    window.dispatchEvent(new CustomEvent('phancyOrdersUpdated', { detail: orders }));
+  } catch (e) {
+    // ignore
+  }
 };
 
 const createOrder = (cart, paymentMethod) => {
@@ -465,6 +474,42 @@ const setupProductRefresh = async () => {
   setInterval(refreshProducts, 1000);
 };
 
+// My Orders renderer — shows orders for the signed-in client and updates on changes
+const renderMyOrders = () => {
+  const list = document.getElementById('my-orders-list');
+  if (!list) return;
+  const orders = getOrders();
+  const currentEmail = localStorage.getItem('phancyClientEmail') || '';
+  const myOrders = currentEmail ? orders.filter(o => o.clientEmail === currentEmail) : [];
+
+  if (!myOrders.length) {
+    list.innerHTML = '<p style="color:#475569;">You have no orders yet.</p>';
+    return;
+  }
+
+  list.innerHTML = myOrders.map(order => {
+    const itemsHtml = order.items.map(i => `<div class="order-item"><span>${i.name} x ${i.quantity}</span><span>KES ${i.price}</span></div>`).join('');
+    return `
+      <div class="order-card">
+        <h4>Order #${order.id}</h4>
+        <p><strong>Total:</strong> KES ${order.total} · <strong>Status:</strong> <span style="font-weight:bold; color:#0284c7;">${order.status.toUpperCase()}</span></p>
+        <div class="order-items">${itemsHtml}</div>
+        <p class="order-date">${new Date(order.placedAt).toLocaleString()}</p>
+      </div>
+    `;
+  }).join('');
+};
+
+// Re-render My Orders when orders change either via localStorage events (other tabs) or custom events (same tab)
+window.addEventListener('storage', (event) => {
+  if (event.key === 'phancyOrders') {
+    renderMyOrders();
+  }
+});
+window.addEventListener('phancyOrdersUpdated', () => {
+  renderMyOrders();
+});
+
 if (pageName === '' || pageName === 'index.html') {
   (async () => {
     const products = await getProducts();
@@ -474,6 +519,7 @@ if (pageName === '' || pageName === 'index.html') {
     await setupCategoryFilters();
     setupProductRefresh();
     renderCart();
+    renderMyOrders();
     updateUserBadge();
     const placeOrderBtn = document.getElementById('place-order-btn');
     if (placeOrderBtn) {
@@ -493,6 +539,7 @@ if (pageName === '' || pageName === 'index.html') {
         createOrder(cart, paymentMethod);
         saveCart([]);
         renderCart();
+        renderMyOrders();
         alert(`Your order has been placed using ${paymentMethod}. Thank you!`);
       });
     }
