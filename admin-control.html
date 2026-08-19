@@ -71,9 +71,9 @@
             
             <!-- CLOUDINARY UPLOAD WIDGET -->
             <label>Upload Product Image
-              <div id="cloudinary-upload" class="cloudinary-upload-btn" style="padding: 15px; background-color: #007bff; color: white; border-radius: 4px; cursor: pointer; text-align: center; margin-top: 5px; font-weight: bold;">
+              <button type="button" id="cloudinary-upload" class="cloudinary-upload-btn" style="padding: 15px; background-color: #007bff; color: white; border-radius: 4px; cursor: pointer; text-align: center; margin-top: 5px; font-weight: bold; width: 100%; border: none; font-size: 14px;">
                 📸 Click to Upload Image to Cloudinary
-              </div>
+              </button>
               <input type="hidden" name="cloudinary-url" id="cloudinary-url" />
               <div id="image-preview" style="margin-top: 10px;"></div>
             </label>
@@ -129,37 +129,57 @@
     const CLOUDINARY_CLOUD_NAME = 't7eiohic';
     const CLOUDINARY_UPLOAD_PRESET = 'phancy_styles';
 
-    // Initialize Cloudinary Upload Widget
-    const cw = cloudinary.Cloudinary.new({ cloud_name: CLOUDINARY_CLOUD_NAME });
-
     let uploadedImageUrl = '';
 
-    document.getElementById('cloudinary-upload').addEventListener('click', () => {
-      cw.openUploadWidget(
-        {
-          cloudName: CLOUDINARY_CLOUD_NAME,
-          uploadPreset: CLOUDINARY_UPLOAD_PRESET,
-          sources: ['local', 'url', 'camera'],
-          resourceType: 'image',
-          clientAllowedFormats: ['jpg', 'png', 'jpeg', 'gif', 'webp'],
-          maxFileSize: 5000000, // 5MB
-          multiple: false,
-          folder: 'phancy-styles/products', // Organize images in Cloudinary
-        },
-        (error, result) => {
-          if (!error && result && result.event === 'success') {
-            uploadedImageUrl = result.info.secure_url;
-            document.getElementById('cloudinary-url').value = uploadedImageUrl;
-            
-            // Show preview
-            const preview = document.getElementById('image-preview');
-            preview.innerHTML = `
-              <img src="${uploadedImageUrl}" style="max-width: 150px; border-radius: 4px; margin-top: 10px;" alt="Product preview" />
-              <p style="font-size: 12px; color: #666; margin-top: 5px;">✓ Image uploaded successfully to Cloudinary!</p>
-            `;
+    // Wait for page to fully load before initializing
+    window.addEventListener('DOMContentLoaded', () => {
+      const uploadBtn = document.getElementById('cloudinary-upload');
+      
+      if (uploadBtn) {
+        uploadBtn.addEventListener('click', (e) => {
+          e.preventDefault();
+          
+          // Check if cloudinary widget is available
+          if (typeof cloudinary === 'undefined') {
+            alert('Cloudinary is loading... Please try again in a moment.');
+            return;
           }
-        }
-      );
+
+          try {
+            cloudinary.openUploadWidget(
+              {
+                cloudName: CLOUDINARY_CLOUD_NAME,
+                uploadPreset: CLOUDINARY_UPLOAD_PRESET,
+                sources: ['local', 'url', 'camera'],
+                resourceType: 'image',
+                clientAllowedFormats: ['jpg', 'png', 'jpeg', 'gif', 'webp'],
+                maxFileSize: 5000000, // 5MB
+                multiple: false,
+                folder: 'phancy-styles/products',
+              },
+              (error, result) => {
+                if (!error && result && result.event === 'success') {
+                  uploadedImageUrl = result.info.secure_url;
+                  document.getElementById('cloudinary-url').value = uploadedImageUrl;
+                  
+                  // Show preview
+                  const preview = document.getElementById('image-preview');
+                  preview.innerHTML = `
+                    <img src="${uploadedImageUrl}" style="max-width: 150px; border-radius: 4px; margin-top: 10px;" alt="Product preview" />
+                    <p style="font-size: 12px; color: green; margin-top: 5px;">✓ Image uploaded successfully!</p>
+                  `;
+                } else if (error) {
+                  alert('Upload failed. Make sure your upload preset "phancy_styles" exists in Cloudinary Settings.');
+                  console.error('Upload error:', error);
+                }
+              }
+            );
+          } catch (err) {
+            console.error('Cloudinary error:', err);
+            alert('Error opening upload widget. Check console for details.');
+          }
+        });
+      }
     });
   </script>
 
