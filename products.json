@@ -8,7 +8,7 @@
       "condition": "New", 
       "size": "M", 
       "price": 1499, 
-      "imageUrl": "", 
+      "imageUrl": "https://picsum.photos/seed/dress/800/600", 
       "description": "Light summer dress for women." 
     },
     { 
@@ -19,7 +19,7 @@
       "condition": "Second-hand", 
       "size": "L", 
       "price": 799, 
-      "imageUrl": "", 
+      "imageUrl": "https://picsum.photos/seed/denim/800/600", 
       "description": "Classic denim jacket." 
     },
     { 
@@ -30,7 +30,7 @@
       "condition": "New", 
       "size": "42", 
       "price": 2999, 
-      "imageUrl": "", 
+      "imageUrl": "https://picsum.photos/seed/sneakers/800/600", 
       "description": "Comfortable leather sneakers." 
     },
     { 
@@ -41,7 +41,7 @@
       "condition": "New", 
       "size": "32", 
       "price": 1199, 
-      "imageUrl": "", 
+      "imageUrl": "https://picsum.photos/seed/kids/800/600", 
       "description": "Sporty shoes for children." 
     }
   ]
