@@ -1,154 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Phancy Styles Admin Control</title>
-  <link rel="stylesheet" href="style.css" />
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://res.cloudinary.com https://picsum.photos https://images.unsplash.com data:; connect-src 'self' https://api.cloudinary.com https://*.googleapis.com https://*.firebaseio.com; base-uri 'self'; object-src 'none'; frame-ancestors 'none';" />
+<title>Phancy Styles Admin Control</title>
+<link rel="stylesheet" href="style.css" />
 </head>
 <body class="login-page">
-  <header class="site-header client-header">
-    <div class="topbar">
-      <p>Admin control panel for managing the Phancy Styles client website inventory.</p>
-    </div>
-    <div class="header-main">
-      <div class="brand">
-        <h1>Phancy Styles Admin</h1>
-        <span>Separate admin website</span>
-      </div>
-      <div class="header-actions">
-        <span id="admin-email-badge" class="admin-email-badge"></span>
-        <a class="site-link" href="index.html">Client Site</a>
-      </div>
-    </div>
-  </header>
+<header class="site-header client-header">
+<div class="topbar">
+<p>Admin control panel for managing the Phancy Styles client website inventory.</p>
+</div>
+<div class="header-main">
+<div class="brand">
+<h1>Phancy Styles Admin</h1>
+<span>Separate admin website</span>
+</div>
+<div class="header-actions">
+<span id="admin-email-badge" class="admin-email-badge"></span>
+<a class="site-link" href="index.html">Client Site</a>
+</div>
+</div>
+</header>
+<main class="page-container">
+<section class="login-card admin-panel">
+<h2>Admin Sign In</h2>
+<p>Sign in to add stock, upload product images, and update the client storefront.</p>
+<p class="login-note">Open this page directly at <strong>admin-control.html</strong> for separate admin access.</p>
+<p id="admin-access-message" class="login-note" style="color:#dc3545;"></p>
+<form class="auth-form admin-login-form">
+<label>Email
+<input name="admin-email" type="email" placeholder="admin@example.com" required />
+</label>
+<label>Password
+<input type="password" placeholder="Enter your password" required />
+</label>
+<button type="submit" class="btn btn-primary">Sign In</button>
+</form>
+</section>
+<section class="admin-section admin-dashboard hidden">
+<div class="section-header">
+<h2>Admin Dashboard</h2>
+<div>
+<a href="index.html" class="link-secondary">Open Client Site</a>
+<button type="button" class="btn btn-secondary btn-logout">Logout</button>
+</div>
+</div>
+<div class="admin-grid">
+<div class="admin-card">
+<h3>Stock Manager</h3>
+<p>Add inventory with sizes, prices, images, and category assignments.</p>
+<form class="stock-form">
+<label>Item Name<input name="item-name" type="text" placeholder="Product name" required /></label>
+<label>Category<select name="category">
+<option>Women Clothing</option>
+<option>Women Shoes</option>
+<option>Men Clothing</option>
+<option>Men Shoes</option>
+<option>Children</option>
+</select></label>
+<label>Product Type<input name="product-type" type="text" placeholder="Vest, Shirt, Jeans, Sneakers" /></label>
+<label>Condition<select name="condition">
+<option>New</option>
+<option>Second-hand</option>
+</select></label>
+<label>Size<input name="size" type="text" placeholder="S, M, L, 38, 39" /></label>
 
-  <main class="page-container">
-    <section class="login-card admin-panel">
-      <h2>Admin Sign In</h2>
-      <p>Sign in to add stock, upload product images, and update the client storefront.</p>
-      <p class="login-note">Open this page directly at <strong>admin-control.html</strong> for separate admin access.</p>
-      <form class="auth-form admin-login-form">
-        <label>Email
-          <input name="admin-email" type="email" placeholder="admin@example.com" required />
-        </label>
-        <label>Password
-          <input type="password" placeholder="Enter your password" required />
-        </label>
-        <button type="submit" class="btn btn-primary">Sign In</button>
-      </form>
-    </section>
+<!-- IMAGE UPLOAD - CLOUDINARY -->
+<label>Product Image
+<input type="file" name="upload-image" id="upload-image" accept="image/*" style="margin-top: 5px;" />
+<small style="color: #666; margin-top: 5px; display: block;">
+📤 Pick a photo — it uploads to Cloudinary automatically.
+</small>
+</label>
+<label>Product Image URL
+<input type="url" name="image-url" id="image-url" placeholder="Auto-filled after upload, or paste any image URL here" style="margin-top: 5px;" />
+<small style="color: #666; margin-top: 5px; display: block;">
+💡 You can also paste a URL directly instead of uploading a file.
+</small>
+<div id="upload-status" style="margin-top: 8px; font-size: 13px; font-weight: bold;"></div>
+<div id="image-preview" style="margin-top: 15px; text-align: center;"></div>
+</label>
 
-    <section class="admin-section admin-dashboard hidden">
-      <div class="section-header">
-        <h2>Admin Dashboard</h2>
-        <div>
-          <a href="index.html" class="link-secondary">Open Client Site</a>
-          <button type="button" class="btn btn-secondary btn-logout">Logout</button>
-        </div>
-      </div>
-
-      <div class="admin-grid">
-        <div class="admin-card">
-          <h3>Stock Manager</h3>
-          <p>Add inventory with sizes, prices, images, and category assignments.</p>
-          <form class="stock-form">
-            <label>Item Name<input name="item-name" type="text" placeholder="Product name" required /></label>
-            <label>Category<select name="category">
-              <option>Women Clothing</option>
-              <option>Women Shoes</option>
-              <option>Men Clothing</option>
-              <option>Men Shoes</option>
-              <option>Children</option>
-            </select></label>
-            <label>Product Type<input name="product-type" type="text" placeholder="Vest, Shirt, Jeans, Sneakers" /></label>
-            <label>Condition<select name="condition">
-              <option>New</option>
-              <option>Second-hand</option>
-            </select></label>
-            <label>Size<input name="size" type="text" placeholder="S, M, L, 38, 39" /></label>
-            
-            <!-- IMAGE URL INPUT - SIMPLE METHOD -->
-            <label>Product Image URL
-              <input type="url" name="image-url" id="image-url" placeholder="Paste Cloudinary or any image URL here" style="margin-top: 5px;" />
-              <small style="color: #666; margin-top: 5px; display: block;">
-                💡 Example: https://res.cloudinary.com/t7eiohic/image/upload/v1234/phancy-styles/products/dress.jpg
-              </small>
-              <div id="image-preview" style="margin-top: 15px; text-align: center;"></div>
-            </label>
-            
-            <label>Description<textarea name="description" placeholder="Product description"></textarea></label>
-            <label>Price (KES)<input name="price" type="number" placeholder="1999" required /></label>
-            <button type="submit" class="btn btn-primary">Add Stock</button>
-          </form>
-        </div>
-
-        <div class="admin-card">
-          <h3>How to Add Products</h3>
-          <ol style="font-size: 14px; line-height: 1.8;">
-            <li>📝 Fill in product details (name, category, size, price)</li>
-            <li>🔗 Paste an image URL in the "Product Image URL" field</li>
-            <li>✓ Image preview will appear</li>
-            <li>💾 Click "Add Stock" to save product</li>
-          </ol>
-          <hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
-          <h4 style="margin-top: 15px;">Image URL Examples:</h4>
-          <ul style="font-size: 13px; color: #666;">
-            <li>Cloudinary: https://res.cloudinary.com/t7eiohic/image/upload/...</li>
-            <li>Picsum Photos: https://picsum.photos/seed/product/800/600</li>
-            <li>Unsplash: https://images.unsplash.com/photo-...</li>
-          </ul>
-        </div>
-
-        <div class="admin-card inventory-card">
-          <h3>Inventory Summary</h3>
-          <div id="category-counts" class="inventory-counts"></div>
-          <div id="inventory-list" class="inventory-list"></div>
-        </div>
-
-        <div class="admin-card orders-card">
-          <h3>Recent Orders</h3>
-          <div id="order-counts" class="inventory-counts"></div>
-          <div id="order-list" class="order-list"></div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <div class="footer-grid">
-      <div>
-        <h3>Admin Support</h3>
-        <p>Use WhatsApp for urgent admin assistance and inventory updates.</p>
-      </div>
-      <div>
-        <h4>Quick Links</h4>
-        <a href="index.html">Client Site</a>
-      </div>
-    </div>
-    <p class="footer-note">© 2026 Phancy Styles Admin. All rights reserved.</p>
-  </footer>
-
-  <script>
-    // Preview image when URL is entered
-    document.getElementById('image-url').addEventListener('input', (e) => {
-      const url = e.target.value;
-      const preview = document.getElementById('image-preview');
-      
-      if (url.startsWith('http')) {
-        preview.innerHTML = `
-          <img src="${url}" 
-               style="max-width: 200px; max-height: 200px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" 
-               alt="Product preview"
-               onerror="this.outerHTML='<p style=\"color: #dc3545;\">❌ Image URL not found</p>'" />
-          <p style="font-size: 12px; color: #28a745; margin-top: 10px; font-weight: bold;">✓ Image preview</p>
-        `;
-      } else {
-        preview.innerHTML = '';
-      }
-    });
-  </script>
-
-  <script src="script.js"></script>
+<label>Description<textarea name="description" placeholder="Product description"></textarea></label>
+<label>Price (KES)<input name="price" type="number" placeholder="1999" required /></label>
+<button type="submit" class="btn btn-primary">Add Stock</button>
+</form>
+</div>
+<div class="admin-card">
+<h3>How to Add Products</h3>
+<ol style="font-size: 14px; line-height: 1.8;">
+<li>📝 Fill in product details (name, category, size, price)</li>
+<li>📤 Pick a photo — it uploads to Cloudinary and fills the URL field for you</li>
+<li>✓ Image preview will appear once the upload finishes</li>
+<li>💾 Click "Add Stock" to save product</li>
+</ol>
+<hr style="margin: 15px 0; border: none; border-top: 1px solid #ddd;">
+<h4 style="margin-top: 15px;">Prefer a URL instead?</h4>
+<ul style="font-size: 13px; color: #666;">
+<li>Cloudinary: https://res.cloudinary.com/t7eiohic/image/upload/...</li>
+<li>Picsum Photos: https://picsum.photos/seed/product/800/600</li>
+<li>Unsplash: https://images.unsplash.com/photo-...</li>
+</ul>
+</div>
+<div class="admin-card inventory-card">
+<h3>Inventory Summary</h3>
+<div id="category-counts" class="inventory-counts"></div>
+<div id="inventory-list" class="inventory-list"></div>
+</div>
+<div class="admin-card orders-card">
+<h3>Recent Orders</h3>
+<div id="order-counts" class="inventory-counts"></div>
+<div id="order-list" class="order-list"></div>
+</div>
+</div>
+</section>
+</main>
+<footer class="site-footer">
+<div class="footer-grid">
+<div>
+<h3>Admin Support</h3>
+<p>Use WhatsApp for urgent admin assistance and inventory updates.</p>
+</div>
+<div>
+<h4>Quick Links</h4>
+<a href="index.html">Client Site</a>
+</div>
+</div>
+<p class="footer-note">© 2026 Phancy Styles Admin. All rights reserved.</p>
+</footer>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+<script src="script.js"></script>
 </body>
 </html>
