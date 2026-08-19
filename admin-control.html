@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Phancy Styles Admin Control</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://upload-widget.cloudinary.com/latest/cwt.js" type="text/javascript"></script>
 </head>
 <body class="login-page">
   <header class="site-header client-header">
@@ -67,8 +68,16 @@
               <option>Second-hand</option>
             </select></label>
             <label>Size<input name="size" type="text" placeholder="S, M, L, 38, 39" /></label>
-            <label>Image URL<input name="image-url" type="text" placeholder="https://example.com/product.jpg" /></label>
-            <label>Upload Image<input name="upload-image" type="file" accept="image/*" /></label>
+            
+            <!-- CLOUDINARY UPLOAD WIDGET -->
+            <label>Upload Product Image
+              <div id="cloudinary-upload" class="cloudinary-upload-btn" style="padding: 15px; background-color: #007bff; color: white; border-radius: 4px; cursor: pointer; text-align: center; margin-top: 5px; font-weight: bold;">
+                📸 Click to Upload Image to Cloudinary
+              </div>
+              <input type="hidden" name="cloudinary-url" id="cloudinary-url" />
+              <div id="image-preview" style="margin-top: 10px;"></div>
+            </label>
+            
             <label>Description<textarea name="description" placeholder="Product description"></textarea></label>
             <label>Price (KES)<input name="price" type="number" placeholder="1999" required /></label>
             <button type="submit" class="btn btn-primary">Add Stock</button>
@@ -79,9 +88,10 @@
           <h3>Inventory Rules</h3>
           <p>Products added here are stored in browser localStorage and appear on the client storefront.</p>
           <ul>
-            <li>Upload a file or provide an image URL.</li>
+            <li>📸 Upload images to Cloudinary for reliable hosting.</li>
             <li>Set the product category and type.</li>
             <li>Use KES pricing for each item.</li>
+            <li>Changes appear on client site in real-time.</li>
           </ul>
         </div>
 
@@ -113,6 +123,46 @@
     </div>
     <p class="footer-note">© 2026 Phancy Styles Admin. All rights reserved.</p>
   </footer>
+
+  <script>
+    // ===== CLOUDINARY CONFIGURATION =====
+    const CLOUDINARY_CLOUD_NAME = 't7eiohic';
+    const CLOUDINARY_UPLOAD_PRESET = 'phancy_styles';
+
+    // Initialize Cloudinary Upload Widget
+    const cw = cloudinary.Cloudinary.new({ cloud_name: CLOUDINARY_CLOUD_NAME });
+
+    let uploadedImageUrl = '';
+
+    document.getElementById('cloudinary-upload').addEventListener('click', () => {
+      cw.openUploadWidget(
+        {
+          cloudName: CLOUDINARY_CLOUD_NAME,
+          uploadPreset: CLOUDINARY_UPLOAD_PRESET,
+          sources: ['local', 'url', 'camera'],
+          resourceType: 'image',
+          clientAllowedFormats: ['jpg', 'png', 'jpeg', 'gif', 'webp'],
+          maxFileSize: 5000000, // 5MB
+          multiple: false,
+          folder: 'phancy-styles/products', // Organize images in Cloudinary
+        },
+        (error, result) => {
+          if (!error && result && result.event === 'success') {
+            uploadedImageUrl = result.info.secure_url;
+            document.getElementById('cloudinary-url').value = uploadedImageUrl;
+            
+            // Show preview
+            const preview = document.getElementById('image-preview');
+            preview.innerHTML = `
+              <img src="${uploadedImageUrl}" style="max-width: 150px; border-radius: 4px; margin-top: 10px;" alt="Product preview" />
+              <p style="font-size: 12px; color: #666; margin-top: 5px;">✓ Image uploaded successfully to Cloudinary!</p>
+            `;
+          }
+        }
+      );
+    });
+  </script>
+
   <script src="script.js"></script>
 </body>
 </html>
