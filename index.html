@@ -12,6 +12,22 @@
 .mpesa-code-field input{width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:16px;text-transform:uppercase}
 .mpesa-code-field small{display:block;margin-top:4px;color:#666}
 .product-description{font-size:0.85em;color:#555;margin:6px 0;line-height:1.4}
+.product-card{cursor:pointer}
+.product-modal{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
+.product-modal.hidden{display:none}
+.product-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.65)}
+.product-modal-content{position:relative;background:#fff;border-radius:12px;max-width:640px;width:100%;max-height:92vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3)}
+.product-modal-close{position:absolute;top:8px;right:12px;font-size:32px;line-height:1;background:none;border:none;cursor:pointer;color:#333;z-index:2;padding:4px 10px}
+.product-modal-image{width:100%;height:320px;background-size:cover;background-position:center;background-color:#e9ecef;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;color:#888}
+.product-modal-info{padding:22px 24px 26px}
+.product-modal-info h2{margin:0 0 8px 0}
+.product-modal-price{font-size:1.4em;font-weight:bold;color:#1a7a32;margin:4px 0 10px}
+.product-modal-description{font-size:0.95em;color:#444;line-height:1.5;margin:14px 0 18px}
+#modal-add-to-cart{width:100%;padding:14px;font-size:1em}
+@media (max-width:600px){
+.product-modal-image{height:220px}
+.product-modal-info{padding:16px}
+}
 </style>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://res.cloudinary.com https://picsum.photos https://images.unsplash.com data:; connect-src 'self' https://api.cloudinary.com https://*.googleapis.com https://*.firebaseio.com; base-uri 'self'; object-src 'none'; frame-ancestors 'none';" />
 <title>Phancy Styles | New & Second-hand Clothes and Shoes in KES</title>
@@ -182,9 +198,25 @@
 </div>
 <p class="footer-note">© 2026 Phancy Styles. All rights reserved.</p>
 </footer>
+<div id="product-modal" class="product-modal hidden">
+<div id="modal-backdrop" class="product-modal-backdrop"></div>
+<div class="product-modal-content">
+<button type="button" id="modal-close" class="product-modal-close" aria-label="Close">&times;</button>
+<div id="modal-image" class="product-modal-image">No image available</div>
+<div class="product-modal-info">
+<h2 id="modal-name"></h2>
+<p id="modal-price" class="product-modal-price"></p>
+<div id="modal-meta" class="product-meta"></div>
+<p id="modal-description" class="product-modal-description"></p>
+<button type="button" id="modal-add-to-cart" class="btn btn-add">Add to Cart</button>
+</div>
+</div>
+</div>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
+
+
