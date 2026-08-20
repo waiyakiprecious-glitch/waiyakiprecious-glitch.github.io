@@ -1,3 +1,4 @@
+// ===== Firebase setup =====
 const firebaseConfig = {
   apiKey: "AIzaSyC_nI9BSfWN7gpHi4G_KNCZQctw9gVzRpo",
   authDomain: "phancy-styles.firebaseapp.com",
@@ -12,6 +13,8 @@ const db = firebase.firestore();
 const productsCollection = db.collection('products');
 const ordersCollection = db.collection('orders');
 const adminsCollection = db.collection('admins');
+const loginsCollection = db.collection('logins');
+const clientsCollection = db.collection('clients');
 
 // ===== Cloudinary config (unsigned upload preset — safe to expose in frontend code) =====
 const CLOUDINARY_CLOUD_NAME = 't7eiohic';
@@ -43,6 +46,21 @@ let isAdmin = false;
 let cachedProducts = [];
 let cachedOrders = [];
 let unsubscribeOrders = null;
+let clientProfileLoaded = false;
+let loginsSubscribed = false;
+
+// Record a login event so admins can see recent site activity.
+const logLoginEvent = async (email, role) => {
+  try {
+    await loginsCollection.add({
+      email,
+      role,
+      loggedInAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (error) {
+    console.error('Could not record login event:', error);
+  }
+};
 
 const categoryLabels = {
   'Women Clothing': "Women's Clothing",
@@ -271,6 +289,24 @@ const setupCategoryFilters = () => {
   });
 };
 
+// Render the four stat cards at the top of admin-dashboard.html.
+const renderDashboardStats = () => {
+  const box = document.getElementById('dashboard-stats');
+  if (!box) return;
+  const totalOrders = cachedOrders.length;
+  const revenue = cachedOrders.reduce((sum, order) => sum + (order.total || 0), 0);
+  const pending = cachedOrders.filter((order) => (order.status || 'pending') === 'pending').length;
+  box.innerHTML = `
+    <div class="stat-card"><h3>Total Orders</h3><div class="number">${totalOrders}</div></div>
+    <div class="stat-card"><h3>Revenue (KES)</h3><div class="number">${revenue.toLocaleString()}</div></div>
+    <div class="stat-card"><h3>Products Listed</h3><div class="number">${cachedProducts.length}</div></div>
+    <div class="stat-card"><h3>Pending Orders</h3><div class="number">${pending}</div></div>
+  `;
+};
+
+const isAdminPage = () =>
+  pageName === 'admin.html' || pageName === 'admin-control.html' || pageName === 'admin-dashboard.html';
+
 // Live product feed — every visitor sees admin changes in real time, no polling needed.
 productsCollection.orderBy('createdAt', 'desc').onSnapshot(
   (snapshot) => {
@@ -279,12 +315,38 @@ productsCollection.orderBy('createdAt', 'desc').onSnapshot(
     if (pageName === '' || pageName === 'index.html') {
       renderProducts(filterProductsList(cachedProducts, activeCategory));
     }
-    if (pageName === 'admin.html' || pageName === 'admin-control.html') {
+    if (isAdminPage()) {
       renderAdminInventory();
+      renderDashboardStats();
     }
   },
   (error) => console.error('Failed to load products:', error)
 );
+
+// Recent site logins, visible only to admins (enforced by Firestore rules too).
+const renderRecentLogins = (logins) => {
+  const list = document.getElementById('recent-logins-list');
+  if (!list) return;
+  if (!logins.length) {
+    list.innerHTML = '<tr><td colspan="3">No login activity yet.</td></tr>';
+    return;
+  }
+  list.innerHTML = logins
+    .map((entry) => {
+      const when = entry.loggedInAt?.toDate ? entry.loggedInAt.toDate().toLocaleString() : 'Just now';
+      return `<tr><td>${escapeHtml(entry.email)}</td><td>${escapeHtml(entry.role)}</td><td>${escapeHtml(when)}</td></tr>`;
+    })
+    .join('');
+};
+
+const subscribeRecentLogins = () => {
+  if (loginsSubscribed) return;
+  loginsSubscribed = true;
+  loginsCollection.orderBy('loggedInAt', 'desc').limit(20).onSnapshot(
+    (snapshot) => renderRecentLogins(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))),
+    (error) => console.error('Failed to load recent logins:', error)
+  );
+};
 
 // ===== Orders =====
 const renderMyOrders = () => {
@@ -392,6 +454,7 @@ const subscribeOrders = () => {
     (snapshot) => {
       cachedOrders = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
       if (isAdmin) renderAdminOrders();
+      if (isAdmin && pageName === 'admin-dashboard.html') renderDashboardStats();
       renderMyOrders();
     },
     (error) => console.error('Failed to load orders:', error)
@@ -433,6 +496,43 @@ auth.onAuthStateChanged(async (user) => {
       showElement(adminLoginCard);
       if (currentUser && !isAdmin && adminMessageBox) {
         adminMessageBox.textContent = 'This account does not have admin access.';
+      }
+    }
+  }
+
+  // Full admin dashboard is a standalone page (no login form on it) —
+  // bounce non-admins back to admin-login.html.
+  if (pageName === 'admin-dashboard.html') {
+    if (!currentUser || !isAdmin) {
+      window.location.href = 'admin-login.html';
+    } else {
+      renderAdminInventory();
+      renderAdminOrders();
+      renderCategoryCounts();
+      renderDashboardStats();
+      subscribeRecentLogins();
+    }
+  }
+
+  // Client account page — bounce signed-out visitors to the login page.
+  if (pageName === 'client-dashboard.html') {
+    if (!currentUser) {
+      window.location.href = 'client-login.html';
+    } else {
+      const welcomeMsg = document.getElementById('welcome-message');
+      if (welcomeMsg) welcomeMsg.textContent = `Welcome, ${currentUser.email}!`;
+      const profileEmailInput = document.getElementById('profile-email');
+      if (profileEmailInput) profileEmailInput.value = currentUser.email;
+      if (!clientProfileLoaded) {
+        clientProfileLoaded = true;
+        clientsCollection
+          .doc(currentUser.uid)
+          .get()
+          .then((doc) => {
+            const phoneInput = document.getElementById('profile-phone');
+            if (phoneInput && doc.exists) phoneInput.value = doc.data().phone || '';
+          })
+          .catch((error) => console.error('Could not load profile:', error));
       }
     }
   }
@@ -525,6 +625,7 @@ if (pageName === 'client-login.html') {
       const password = passwordInput?.value || '';
       try {
         await auth.signInWithEmailAndPassword(email, password);
+        await logLoginEvent(email, 'client');
         window.location.href = 'index.html';
       } catch (error) {
         setFormMessage(loginForm, error.message, 'error');
@@ -560,6 +661,7 @@ if (pageName === 'client-login.html') {
       }
       try {
         await auth.createUserWithEmailAndPassword(email, passwords[0].value);
+        await logLoginEvent(email, 'client (new account)');
         setFormMessage(signupFormElement, 'Account created — redirecting...', 'success');
         setTimeout(() => {
           window.location.href = 'index.html';
@@ -592,6 +694,8 @@ if (pageName === 'admin.html' || pageName === 'admin-control.html') {
         if (!adminDoc.exists) {
           if (adminMessageBox) adminMessageBox.textContent = 'This account does not have admin access.';
           await auth.signOut();
+        } else {
+          await logLoginEvent(email, 'admin');
         }
       } catch (error) {
         if (adminMessageBox) adminMessageBox.textContent = error.message;
@@ -726,6 +830,75 @@ if (pageName === 'admin.html' || pageName === 'admin-control.html') {
     });
   }
 }
-    
+
+// ===== Standalone admin dashboard page (admin-dashboard.html) =====
+if (pageName === 'admin-dashboard.html') {
+  const logoutButton = document.querySelector('.btn-logout');
+  if (logoutButton) {
+    logoutButton.addEventListener('click', () => auth.signOut());
+  }
+}
+
+// ===== Standalone admin login page (admin-login.html) =====
+if (pageName === 'admin-login.html') {
+  const adminLoginForm = document.querySelector('.admin-login-form');
+  const messageBox = document.getElementById('admin-login-message');
+
+  if (adminLoginForm) {
+    adminLoginForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (messageBox) messageBox.textContent = '';
+      const email = adminLoginForm.querySelector('input[name="admin-email"]')?.value.trim() || '';
+      const password = adminLoginForm.querySelector('input[type="password"]')?.value || '';
+      try {
+        const credential = await auth.signInWithEmailAndPassword(email, password);
+        const adminDoc = await adminsCollection.doc(credential.user.uid).get();
+        if (!adminDoc.exists) {
+          if (messageBox) messageBox.textContent = 'This account does not have admin access.';
+          await auth.signOut();
+          return;
+        }
+        await logLoginEvent(email, 'admin');
+        window.location.href = 'admin-dashboard.html';
+      } catch (error) {
+        if (messageBox) messageBox.textContent = error.message;
+      }
+    });
+  }
+}
+
+// ===== Client account page (client-dashboard.html) =====
+if (pageName === 'client-dashboard.html') {
+  const profileForm = document.getElementById('profile-form');
+  const logoutBtn = document.querySelector('.btn-logout');
+
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+      await auth.signOut();
+      window.location.href = 'client-login.html';
+    });
+  }
+
+  if (profileForm) {
+    profileForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!currentUser) return;
+      const phoneInput = document.getElementById('profile-phone');
+      try {
+        await clientsCollection.doc(currentUser.uid).set(
+          { phone: phoneInput?.value.trim() || '' },
+          { merge: true }
+        );
+        alert('Profile updated.');
+      } catch (error) {
+        alert('Could not save profile: ' + error.message);
+      }
+    });
+  }
+}
+  
 
 
+  
+ 
+       
