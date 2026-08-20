@@ -7,6 +7,10 @@
 .payment-option-mpesa{background:#e9fbe9;border:2px solid #28a745;border-radius:8px;padding:16px;max-width:420px}
 .payment-option-mpesa strong{color:#1a7a32;font-size:1.05em}
 .payment-option-mpesa p{margin:8px 0;font-size:1.1em}
+.mpesa-code-field{max-width:420px;margin-top:14px}
+.mpesa-code-field label{display:block;font-weight:600;margin-bottom:6px;font-size:14px}
+.mpesa-code-field input{width:100%;box-sizing:border-box;padding:10px;border:1px solid #ccc;border-radius:6px;font-size:16px;text-transform:uppercase}
+.mpesa-code-field small{display:block;margin-top:4px;color:#666}
 </style>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://res.cloudinary.com https://picsum.photos https://images.unsplash.com data:; connect-src 'self' https://api.cloudinary.com https://*.googleapis.com https://*.firebaseio.com; base-uri 'self'; object-src 'none'; frame-ancestors 'none';" />
 <title>Phancy Styles | New & Second-hand Clothes and Shoes in KES</title>
@@ -106,10 +110,15 @@
 <div class="payment-option payment-option-mpesa">
 <strong>M-PESA (Pochi la Biashara)</strong>
 <p>Send payment to: <strong>0717041429</strong></p>
-<small>We currently accept M-PESA only. After placing your order, send the total amount to this number.</small>
+<small>We currently accept M-PESA only. Send the total amount to this number first, then enter the M-PESA confirmation code you receive below before placing your order.</small>
 </div>
 </div>
 <input type="hidden" id="payment-method" value="M-PESA (Pochi la Biashara) - 0717041429" />
+<div class="mpesa-code-field">
+<label for="mpesa-code">M-PESA Confirmation Code</label>
+<input type="text" id="mpesa-code" placeholder="e.g. QGH7XXXXX1" autocomplete="off" required />
+<small>Find this in the M-PESA text message you receive right after paying.</small>
+</div>
 </div>
 <div class="checkout-bar">
 <span id="checkout-total">Total: KES 0</span>
