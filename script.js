@@ -48,6 +48,7 @@ let cachedOrders = [];
 let unsubscribeOrders = null;
 let clientProfileLoaded = false;
 let loginsSubscribed = false;
+let storefrontPhoneLoaded = false;
 
 // Record a login event so admins can see recent site activity.
 const logLoginEvent = async (email, role) => {
@@ -178,6 +179,29 @@ const attachAdminRemoveButtons = () => {
   });
 };
 
+// Track a product view against the signed-in client's profile, capped to the
+// 8 most recent, newest first, no duplicates. Guests aren't tracked since
+// "Recently Viewed" lives on their account page.
+const recordProductView = async (product) => {
+  if (!currentUser) return;
+  try {
+    const docRef = clientsCollection.doc(currentUser.uid);
+    const snap = await docRef.get();
+    const existing = (snap.exists && snap.data().recentlyViewed) || [];
+    const filtered = existing.filter((item) => item.id !== product.id);
+    const entry = {
+      id: product.id,
+      name: product.name || '',
+      price: product.price || 0,
+      imageUrl: product.imageUrl || ''
+    };
+    const updated = [entry, ...filtered].slice(0, 8);
+    await docRef.set({ recentlyViewed: updated }, { merge: true });
+  } catch (error) {
+    console.error('Could not record product view:', error);
+  }
+};
+
 const createProductCard = (product) => {
   const article = document.createElement('article');
   article.className = 'product-card';
@@ -195,6 +219,10 @@ const createProductCard = (product) => {
       <button class="btn btn-add" data-product-id="${product.id}">Add to Cart</button>
     </div>
   `;
+  article.addEventListener('click', (event) => {
+    if (event.target.closest('.btn-add')) return;
+    recordProductView(product);
+  });
   return article;
 };
 
@@ -350,6 +378,32 @@ const subscribeRecentLogins = () => {
 };
 
 // ===== Orders =====
+// Recently Viewed list on client-dashboard.html.
+const renderRecentlyViewed = (items) => {
+  const list = document.getElementById('recently-viewed-list');
+  if (!list) return;
+  if (!items.length) {
+    list.innerHTML = '<p style="color:#666;">You have not viewed any products yet. Browse the <a href="index.html">storefront</a> to see items here.</p>';
+    return;
+  }
+  list.innerHTML = items
+    .map((item) => {
+      const hasImage = Boolean(item.imageUrl);
+      const imageStyle = hasImage ? `background-image:url('${escapeHtml(item.imageUrl)}');` : '';
+      return `
+        <div class="recently-viewed-item">
+          <div class="recently-viewed-image" style="${imageStyle}">${hasImage ? '' : 'No image'}</div>
+          <div class="recently-viewed-details">
+            <strong>${escapeHtml(item.name)}</strong>
+            <span>KES ${item.price}</span>
+          </div>
+          <a href="index.html#products" class="btn btn-secondary">View on Site</a>
+        </div>
+      `;
+    })
+    .join('');
+};
+
 const renderMyOrders = () => {
   const list = document.getElementById('my-orders-list');
   if (!list) return;
@@ -423,6 +477,7 @@ const renderAdminOrders = () => {
         <div class="order-card">
           <h4>Order #${order.id}</h4>
           <p><strong>Placed by:</strong> ${escapeHtml(order.clientEmail)}</p>
+          <p><strong>Phone:</strong> ${escapeHtml(order.clientPhone) || 'Not provided'}</p>
           <p><strong>Payment method:</strong> ${escapeHtml(order.paymentMethod)}</p>
           <p><strong>M-PESA Code:</strong> <span style="font-family:monospace; font-weight:bold; background:#f0f0f0; padding:2px 6px; border-radius:4px;">${escapeHtml(order.mpesaCode) || 'Not provided'}</span></p>
           <p><strong>Total:</strong> KES ${order.total}</p>
@@ -534,10 +589,26 @@ auth.onAuthStateChanged(async (user) => {
           .then((doc) => {
             const phoneInput = document.getElementById('profile-phone');
             if (phoneInput && doc.exists) phoneInput.value = doc.data().phone || '';
+            renderRecentlyViewed((doc.exists && doc.data().recentlyViewed) || []);
           })
           .catch((error) => console.error('Could not load profile:', error));
       }
     }
+  }
+
+  // Prefill the checkout delivery-phone field from their saved profile.
+  if ((pageName === '' || pageName === 'index.html') && currentUser && !storefrontPhoneLoaded) {
+    storefrontPhoneLoaded = true;
+    clientsCollection
+      .doc(currentUser.uid)
+      .get()
+      .then((doc) => {
+        const phoneField = document.getElementById('delivery-phone');
+        if (phoneField && !phoneField.value && doc.exists) {
+          phoneField.value = doc.data().phone || '';
+        }
+      })
+      .catch((error) => console.error('Could not load saved phone number:', error));
   }
 });
 
@@ -551,6 +622,7 @@ if (pageName === '' || pageName === 'index.html') {
   if (placeOrderBtn) {
     const paymentMethodSelect = document.getElementById('payment-method');
     const mpesaCodeInput = document.getElementById('mpesa-code');
+    const deliveryPhoneInput = document.getElementById('delivery-phone');
     placeOrderBtn.addEventListener('click', async () => {
       const cart = getCart();
       if (!cart.length) {
@@ -559,6 +631,12 @@ if (pageName === '' || pageName === 'index.html') {
       }
       if (!currentUser) {
         window.location.href = 'client-login.html';
+        return;
+      }
+      const deliveryPhone = deliveryPhoneInput?.value.trim() || '';
+      if (!deliveryPhone) {
+        alert('Please enter a phone number so we can reach you for delivery.');
+        deliveryPhoneInput?.focus();
         return;
       }
       const mpesaCode = mpesaCodeInput?.value.trim().toUpperCase() || '';
@@ -572,6 +650,7 @@ if (pageName === '' || pageName === 'index.html') {
         await ordersCollection.add({
           uid: currentUser.uid,
           clientEmail: currentUser.email,
+          clientPhone: deliveryPhone,
           paymentMethod,
           mpesaCode,
           total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
@@ -579,6 +658,8 @@ if (pageName === '' || pageName === 'index.html') {
           items: cart.map((item) => ({ id: item.id, name: item.name, quantity: item.quantity, price: item.price })),
           placedAt: firebase.firestore.FieldValue.serverTimestamp()
         });
+        // Keep their saved profile phone in sync in case they updated it here.
+        clientsCollection.doc(currentUser.uid).set({ phone: deliveryPhone }, { merge: true }).catch(() => {});
         saveCart([]);
         renderCart();
         if (mpesaCodeInput) mpesaCodeInput.value = '';
@@ -671,8 +752,16 @@ if (pageName === 'client-login.html') {
         emailInput?.focus();
         return;
       }
+      const phoneInput = signupFormElement.querySelector('input[name="client-phone"]');
+      const phone = phoneInput?.value.trim() || '';
+      if (!phone) {
+        setFormMessage(signupFormElement, 'Phone number is required so we can reach you for delivery.', 'error');
+        phoneInput?.focus();
+        return;
+      }
       try {
-        await auth.createUserWithEmailAndPassword(email, passwords[0].value);
+        const credential = await auth.createUserWithEmailAndPassword(email, passwords[0].value);
+        await clientsCollection.doc(credential.user.uid).set({ phone }, { merge: true });
         await logLoginEvent(email, 'client (new account)');
         setFormMessage(signupFormElement, 'Account created — redirecting...', 'success');
         setTimeout(() => {
