@@ -190,6 +190,7 @@ const createProductCard = (product) => {
     <h3>${escapeHtml(product.name)}</h3>
     <p>KES ${product.price}</p>
     <div class="product-meta">${escapeHtml(product.condition)} · ${escapeHtml(product.size)}${product.type ? ' · ' + escapeHtml(product.type) : ''}</div>
+    ${product.description ? `<p class="product-description">${escapeHtml(product.description)}</p>` : ''}
     <div class="card-actions">
       <button class="btn btn-add" data-product-id="${product.id}">Add to Cart</button>
     </div>
