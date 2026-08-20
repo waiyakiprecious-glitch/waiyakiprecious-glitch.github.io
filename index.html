@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+.payment-option-mpesa{background:#e9fbe9;border:2px solid #28a745;border-radius:8px;padding:16px;max-width:420px}
+.payment-option-mpesa strong{color:#1a7a32;font-size:1.05em}
+.payment-option-mpesa p{margin:8px 0;font-size:1.1em}
+</style>
 <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://res.cloudinary.com https://picsum.photos https://images.unsplash.com data:; connect-src 'self' https://api.cloudinary.com https://*.googleapis.com https://*.firebaseio.com; base-uri 'self'; object-src 'none'; frame-ancestors 'none';" />
 <title>Phancy Styles | New & Second-hand Clothes and Shoes in KES</title>
 <link rel="stylesheet" href="style.css" />
@@ -28,6 +33,7 @@
 <div class="header-actions">
 <span id="user-email-badge" class="user-email-badge"></span>
 <a href="client-login.html">Client Login</a>
+<a href="client-dashboard.html">My Account</a>
 <a href="#">Cart(0)</a>
 </div>
 </div>
@@ -95,26 +101,15 @@
 </div>
 <div class="cart-grid" id="cart-grid"></div>
 <div class="payment-methods">
-<h3>Payment methods</h3>
+<h3>Payment method</h3>
 <div class="payment-options">
-<div class="payment-option">
+<div class="payment-option payment-option-mpesa">
 <strong>M-PESA (Pochi la Biashara)</strong>
-<p>Send money to: <strong>0717041429</strong></p>
-<small>Send payment amount to this number after confirming your order</small>
+<p>Send payment to: <strong>0717041429</strong></p>
+<small>We currently accept M-PESA only. After placing your order, send the total amount to this number.</small>
 </div>
-<div class="payment-option">Airtel Money</div>
-<div class="payment-option">Visa / Mastercard</div>
-<div class="payment-option">Cash on Delivery</div>
 </div>
-<div class="payment-selector">
-<label for="payment-method">Choose a payment method</label>
-<select id="payment-method">
-<option value="M-PESA">M-PESA (Pochi la Biashara) - 0717041429</option>
-<option value="Airtel Money">Airtel Money</option>
-<option value="Card">Card (Visa / Mastercard)</option>
-<option value="Cash on Delivery">Cash on Delivery</option>
-</select>
-</div>
+<input type="hidden" id="payment-method" value="M-PESA (Pochi la Biashara) - 0717041429" />
 </div>
 <div class="checkout-bar">
 <span id="checkout-total">Total: KES 0</span>
