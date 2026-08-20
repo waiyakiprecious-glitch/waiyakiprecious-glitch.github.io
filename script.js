@@ -365,6 +365,7 @@ const renderMyOrders = () => {
       <div class="order-card">
         <h4>Order #${order.id}</h4>
         <p><strong>Status:</strong> ${escapeHtml((order.status || 'pending').toUpperCase())}</p>
+        <p><strong>M-PESA Code:</strong> ${escapeHtml(order.mpesaCode) || 'Not provided'}</p>
         <p><strong>Total:</strong> KES ${order.total}</p>
         <div class="order-items">
           ${(order.items || []).map((item) => `<div class="order-item"><span>${escapeHtml(item.name)} x ${item.quantity}</span><span>KES ${item.price}</span></div>`).join('')}
@@ -422,6 +423,7 @@ const renderAdminOrders = () => {
           <h4>Order #${order.id}</h4>
           <p><strong>Placed by:</strong> ${escapeHtml(order.clientEmail)}</p>
           <p><strong>Payment method:</strong> ${escapeHtml(order.paymentMethod)}</p>
+          <p><strong>M-PESA Code:</strong> <span style="font-family:monospace; font-weight:bold; background:#f0f0f0; padding:2px 6px; border-radius:4px;">${escapeHtml(order.mpesaCode) || 'Not provided'}</span></p>
           <p><strong>Total:</strong> KES ${order.total}</p>
           <p><strong>Status:</strong> <span style="font-weight:bold; color:#0284c7;">${escapeHtml(status.toUpperCase())}</span></p>
           <div class="order-items">
@@ -547,6 +549,7 @@ if (pageName === '' || pageName === 'index.html') {
   const placeOrderBtn = document.getElementById('place-order-btn');
   if (placeOrderBtn) {
     const paymentMethodSelect = document.getElementById('payment-method');
+    const mpesaCodeInput = document.getElementById('mpesa-code');
     placeOrderBtn.addEventListener('click', async () => {
       const cart = getCart();
       if (!cart.length) {
@@ -557,12 +560,19 @@ if (pageName === '' || pageName === 'index.html') {
         window.location.href = 'client-login.html';
         return;
       }
+      const mpesaCode = mpesaCodeInput?.value.trim().toUpperCase() || '';
+      if (!mpesaCode) {
+        alert('Please enter the M-PESA confirmation code from your payment before placing the order.');
+        mpesaCodeInput?.focus();
+        return;
+      }
       const paymentMethod = paymentMethodSelect?.value || 'M-PESA';
       try {
         await ordersCollection.add({
           uid: currentUser.uid,
           clientEmail: currentUser.email,
           paymentMethod,
+          mpesaCode,
           total: cart.reduce((sum, item) => sum + item.price * item.quantity, 0),
           status: 'pending',
           items: cart.map((item) => ({ id: item.id, name: item.name, quantity: item.quantity, price: item.price })),
@@ -570,6 +580,7 @@ if (pageName === '' || pageName === 'index.html') {
         });
         saveCart([]);
         renderCart();
+        if (mpesaCodeInput) mpesaCodeInput.value = '';
         alert(`Your order has been placed using ${paymentMethod}. Thank you!`);
       } catch (error) {
         alert('Could not place order: ' + error.message);
@@ -896,9 +907,3 @@ if (pageName === 'client-dashboard.html') {
     });
   }
 }
-  
-
-
-  
- 
-       
