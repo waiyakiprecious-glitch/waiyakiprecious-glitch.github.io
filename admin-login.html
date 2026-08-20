@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Admin Login | Phancy Styles</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://res.cloudinary.com https://picsum.photos https://images.unsplash.com data:; connect-src 'self' https://api.cloudinary.com https://*.googleapis.com https://*.firebaseio.com; base-uri 'self'; object-src 'none'; frame-ancestors 'none';" />
   <link rel="stylesheet" href="style.css" />
   <style>
     .login-container {
@@ -14,6 +15,7 @@
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(220,53,69,0.2);
       background-color: #fff5f5;
+      box-sizing: border-box;
     }
     .login-container h2 {
       text-align: center;
@@ -29,6 +31,13 @@
       background-color: #fff0f0;
       border-radius: 4px;
     }
+    #admin-login-message {
+      text-align: center;
+      font-size: 14px;
+      color: #dc3545;
+      min-height: 18px;
+      margin-bottom: 10px;
+    }
     .form-group {
       margin-bottom: 20px;
     }
@@ -42,7 +51,7 @@
       padding: 10px;
       border: 1px solid #ddd;
       border-radius: 4px;
-      font-size: 14px;
+      font-size: 16px;
       box-sizing: border-box;
     }
     .form-group input:focus {
@@ -63,18 +72,12 @@
     .login-btn:hover {
       background-color: #c82333;
     }
-    .login-links {
-      text-align: center;
-      margin-top: 20px;
-      font-size: 14px;
-    }
-    .login-links a {
-      color: #dc3545;
-      text-decoration: none;
-      margin: 0 10px;
-    }
-    .login-links a:hover {
-      text-decoration: underline;
+    @media (max-width: 480px) {
+      .login-container {
+        margin: 20px auto;
+        padding: 24px 16px;
+        border-radius: 0;
+      }
     }
   </style>
 </head>
@@ -100,25 +103,18 @@
     <div class="login-container">
       <h2>Admin Login</h2>
       <div class="security-notice">Authorized Personnel Only</div>
-      <form id="admin-login-form">
+      <p id="admin-login-message"></p>
+      <form class="admin-login-form">
         <div class="form-group">
           <label for="admin-email">Admin Email</label>
-          <input type="email" id="admin-email" name="email" required placeholder="Enter admin email" />
+          <input type="email" id="admin-email" name="admin-email" required placeholder="Enter admin email" />
         </div>
         <div class="form-group">
           <label for="admin-password">Password</label>
           <input type="password" id="admin-password" name="password" required placeholder="Enter password" />
         </div>
-        <div class="form-group">
-          <label for="admin-key">Admin Key (Optional)</label>
-          <input type="password" id="admin-key" name="admin-key" placeholder="Enter admin key for verification" />
-        </div>
         <button type="submit" class="login-btn">Login to Dashboard</button>
       </form>
-      <div class="login-links">
-        <a href="#">Forgot Password?</a>
-        <a href="#">Support</a>
-      </div>
     </div>
   </main>
 
@@ -132,6 +128,10 @@
     <p class="footer-note">© 2026 Phancy Styles. All rights reserved.</p>
   </footer>
 
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
+   
