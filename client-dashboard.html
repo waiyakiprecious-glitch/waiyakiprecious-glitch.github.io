@@ -3,210 +3,45 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>My Dashboard | Phancy Styles</title>
+  <title>My Account | Phancy Styles</title>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com; style-src 'self' 'unsafe-inline'; img-src 'self' https://res.cloudinary.com https://picsum.photos https://images.unsplash.com data:; connect-src 'self' https://api.cloudinary.com https://*.googleapis.com https://*.firebaseio.com; base-uri 'self'; object-src 'none'; frame-ancestors 'none';" />
   <link rel="stylesheet" href="style.css" />
   <style>
-    .dashboard-container {
-      display: flex;
-      min-height: 100vh;
-      background-color: #f5f5f5;
-    }
+    .dashboard-container { display: flex; min-height: 100vh; background-color: #f5f5f5; }
     .dashboard-sidebar {
-      width: 250px;
-      background-color: #fff;
-      border-right: 1px solid #ddd;
-      padding: 20px 0;
-      position: fixed;
-      height: 100vh;
-      overflow-y: auto;
+      width: 220px; background-color: #fff; border-right: 1px solid #ddd;
+      padding: 20px 0; position: fixed; height: 100vh; overflow-y: auto; box-sizing: border-box;
     }
-    .dashboard-sidebar h2 {
-      padding: 0 20px;
-      margin: 0 0 20px 0;
-      font-size: 18px;
-      color: #2c3e50;
-    }
-    .dashboard-sidebar ul {
-      list-style: none;
-      padding: 0;
-      margin: 0;
-    }
-    .dashboard-sidebar li {
-      margin: 0;
-    }
+    .dashboard-sidebar h2 { padding: 0 20px; margin: 0 0 20px 0; font-size: 18px; color: #2c3e50; }
+    .dashboard-sidebar ul { list-style: none; padding: 0; margin: 0; }
     .dashboard-sidebar button {
-      width: 100%;
-      padding: 12px 20px;
-      background: none;
-      border: none;
-      text-align: left;
-      cursor: pointer;
-      color: #333;
-      transition: background-color 0.3s;
-      border-left: 4px solid transparent;
-      font-size: 14px;
+      width: 100%; padding: 12px 20px; background: none; border: none; text-align: left;
+      cursor: pointer; color: #333; border-left: 4px solid transparent; font-size: 14px;
     }
-    .dashboard-sidebar button:hover,
-    .dashboard-sidebar button.active {
-      background-color: #f0f0f0;
-      border-left-color: #007bff;
-      color: #007bff;
+    .dashboard-sidebar button:hover, .dashboard-sidebar button.active {
+      background-color: #f0f0f0; border-left-color: #28a745; color: #1a7a32;
     }
-    .dashboard-main {
-      margin-left: 250px;
-      flex: 1;
-      padding: 30px;
-    }
+    .dashboard-main { margin-left: 220px; flex: 1; padding: 24px; min-width: 0; box-sizing: border-box; }
     .dashboard-header {
-      background-color: white;
-      padding: 20px;
-      border-radius: 8px;
-      margin-bottom: 30px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      background: white; padding: 18px 20px; border-radius: 8px; margin-bottom: 20px;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
     }
-    .dashboard-header h1 {
-      margin: 0;
-      color: #2c3e50;
-    }
-    .logout-btn {
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    .dashboard-content {
-      background-color: white;
-      padding: 30px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 600;
-      color: #2c3e50;
-    }
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
-    .form-group textarea {
-      resize: vertical;
-      min-height: 100px;
-    }
-    .btn-save {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 12px 30px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-    .btn-save:hover {
-      background-color: #0056b3;
-    }
-    .order-card {
-      background-color: #f9f9f9;
-      padding: 15px;
-      border-radius: 4px;
-      margin-bottom: 15px;
-      border-left: 4px solid #007bff;
-    }
-    .order-card h3 {
-      margin: 0 0 10px 0;
-      color: #2c3e50;
-    }
-    .order-info {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      font-size: 14px;
-      color: #666;
-    }
-    .order-items {
-      margin-top: 10px;
-      font-size: 12px;
-      color: #666;
-      border-top: 1px solid #e0e0e0;
-      padding-top: 10px;
-    }
-    .address-card {
-      background-color: #f9f9f9;
-      padding: 15px;
-      border-radius: 4px;
-      margin-bottom: 15px;
-      border-left: 4px solid #28a745;
-    }
-    .product-item {
-      background-color: #f9f9f9;
-      padding: 15px;
-      border-radius: 4px;
-      margin-bottom: 15px;
-      display: flex;
-      gap: 15px;
-      align-items: flex-start;
-    }
-    .product-item-image {
-      flex-shrink: 0;
-      width: 80px;
-      height: 80px;
-      background-color: #e9ecef;
-      border-radius: 4px;
-      background-size: cover;
-      background-position: center;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #666;
-      font-size: 12px;
-      text-align: center;
-    }
-    .product-item-details {
-      flex: 1;
-    }
-    .remove-btn {
-      background-color: #dc3545;
-      color: white;
-      border: none;
-      padding: 6px 12px;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 12px;
-    }
+    .dashboard-header h1 { margin: 0; color: #2c3e50; font-size: 20px; }
+    .dashboard-content { background: white; padding: 24px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.08); }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; margin-bottom: 6px; font-weight: 600; color: #2c3e50; font-size: 14px; }
+    .form-group input { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 4px; font-size: 16px; box-sizing: border-box; }
+    .form-group input[disabled] { background: #f5f5f5; color: #666; }
+    .btn-save { background-color: #28a745; color: white; border: none; padding: 12px 26px; border-radius: 4px; cursor: pointer; font-size: 14px; }
+    .btn-save:hover { background-color: #218838; }
     @media (max-width: 768px) {
-      .dashboard-container {
-        flex-direction: column;
-      }
-      .dashboard-sidebar {
-        position: relative;
-        width: 100%;
-        height: auto;
-        display: flex;
-        flex-wrap: wrap;
-      }
-      .dashboard-main {
-        margin-left: 0;
-      }
+      .dashboard-container { flex-direction: column; }
+      .dashboard-sidebar { position: relative; width: 100%; height: auto; display: flex; flex-wrap: wrap; }
+      .dashboard-main { margin-left: 0; padding: 14px; }
+      .dashboard-content { padding: 16px; }
     }
   </style>
 </head>
@@ -215,259 +50,58 @@
     <aside class="dashboard-sidebar">
       <h2>My Account</h2>
       <ul>
-        <li><button class="tab-btn active" onclick="showTab(event, 'profile')">📋 Profile</button></li>
-        <li><button class="tab-btn" onclick="showTab(event, 'orders')">📦 My Orders</button></li>
-        <li><button class="tab-btn" onclick="showTab(event, 'wishlist')">❤️ Wishlist</button></li>
-        <li><button class="tab-btn" onclick="showTab(event, 'addresses')">📍 Addresses</button></li>
-        <li><button class="tab-btn" onclick="showTab(event, 'payments')">💳 Payments</button></li>
-        <li><button class="tab-btn" onclick="showTab(event, 'returns')">↩️ Returns</button></li>
+        <li><button class="tab-btn active" onclick="showTab(event, 'profile')">Profile</button></li>
+        <li><button class="tab-btn" onclick="showTab(event, 'orders')">My Orders</button></li>
       </ul>
     </aside>
 
     <main class="dashboard-main">
       <div class="dashboard-header">
-        <h1 id="welcome-message">Welcome, Customer!</h1>
-        <button class="logout-btn" onclick="logout()">Logout</button>
+        <h1 id="welcome-message">Welcome!</h1>
+        <div>
+          <a href="index.html" class="link-secondary">Continue Shopping</a>
+          <button class="btn btn-secondary btn-logout">Logout</button>
+        </div>
       </div>
 
       <div class="dashboard-content">
-        <!-- Profile Tab -->
         <div id="profile" class="tab-content active">
           <h2>Profile Information</h2>
-          <form onsubmit="saveProfile(event)">
-            <div class="form-group">
-              <label>Full Name</label>
-              <input type="text" id="profile-name" value="John Doe" />
-            </div>
+          <form id="profile-form">
             <div class="form-group">
               <label>Email Address</label>
-              <input type="email" id="profile-email" value="john@example.com" />
+              <input type="email" id="profile-email" disabled />
             </div>
             <div class="form-group">
               <label>Phone Number</label>
-              <input type="tel" id="profile-phone" value="+254712345678" />
-            </div>
-            <div class="form-group">
-              <label>Bio</label>
-              <textarea id="profile-bio" placeholder="Tell us about yourself"></textarea>
+              <input type="tel" id="profile-phone" placeholder="+254712345678" />
             </div>
             <button type="submit" class="btn-save">Save Changes</button>
           </form>
         </div>
 
-        <!-- Orders Tab -->
         <div id="orders" class="tab-content">
           <h2>Order History</h2>
-          <div id="orders-container">
-            <p>Loading your orders...</p>
-          </div>
-        </div>
-
-        <!-- Wishlist Tab -->
-        <div id="wishlist" class="tab-content">
-          <h2>My Wishlist</h2>
-          <div id="wishlist-items"></div>
-        </div>
-
-        <!-- Addresses Tab -->
-        <div id="addresses" class="tab-content">
-          <h2>Saved Addresses</h2>
-          <div class="address-card">
-            <h3>Home Address</h3>
-            <p>123 Main Street, Nairobi, Kenya 00100</p>
-            <small>Default Address</small>
-          </div>
-          <div class="address-card">
-            <h3>Work Address</h3>
-            <p>456 Business Avenue, Westlands, Nairobi 00621</p>
-          </div>
-          <button class="btn-save" onclick="addAddress()">+ Add New Address</button>
-        </div>
-
-        <!-- Payments Tab -->
-        <div id="payments" class="tab-content">
-          <h2>Payment Methods</h2>
-          <div class="address-card">
-            <h3>Mobile Money</h3>
-            <p>Safaricom: +254712345678</p>
-            <small>Default Payment Method</small>
-          </div>
-          <div class="address-card">
-            <h3>Visa Card</h3>
-            <p>**** **** **** 4242</p>
-          </div>
-          <button class="btn-save" onclick="addPayment()">+ Add Payment Method</button>
-        </div>
-
-        <!-- Returns Tab -->
-        <div id="returns" class="tab-content">
-          <h2>Returns & Refunds</h2>
-          <div class="order-card">
-            <h3>Return Request #RET001</h3>
-            <div class="order-info">
-              <div><strong>Order:</strong> #ORD001</div>
-              <div><strong>Status:</strong> <span style="color: green;">Approved</span></div>
-              <div><strong>Reason:</strong> Wrong Size</div>
-              <div><strong>Refund:</strong> KES 2,999</div>
-            </div>
-          </div>
-          <div class="order-card">
-            <h3>Return Request #RET002</h3>
-            <div class="order-info">
-              <div><strong>Order:</strong> #ORD002</div>
-              <div><strong>Status:</strong> <span style="color: orange;">Pending</span></div>
-              <div><strong>Reason:</strong> Defective Item</div>
-              <div><strong>Refund:</strong> KES 4,500</div>
-            </div>
-          </div>
+          <div id="my-orders-list"><p>Loading your orders...</p></div>
         </div>
       </div>
     </main>
   </div>
 
   <script>
-    // Initialize dashboard
-    function initDashboard() {
-      const clientEmail = localStorage.getItem('phancyClientEmail') || 'Customer';
-      document.getElementById('welcome-message').textContent = `Welcome, ${clientEmail}!`;
-      document.getElementById('profile-email').value = clientEmail;
-      renderWishlist();
-      renderOrders();
-    }
-
-    function saveProfile(event) {
-      event.preventDefault();
-      const email = document.getElementById('profile-email').value;
-      localStorage.setItem('phancyClientEmail', email);
-      alert('Profile updated successfully!');
-    }
-
-    function renderWishlist() {
-      const wishlistContainer = document.getElementById('wishlist-items');
-      const products = JSON.parse(localStorage.getItem('phancyProducts') || '[]');
-      
-      if (!products.length) {
-        wishlistContainer.innerHTML = '<p>No products available. Browse our collection and add items to your wishlist!</p>';
-        return;
-      }
-      
-      wishlistContainer.innerHTML = products.map(product => {
-        const imageStyle = product.imageUrl ? `background-image: url('${product.imageUrl}');` : '';
-        const imageContent = product.imageUrl ? '' : 'No image';
-        return `
-          <div class="product-item">
-            <div class="product-item-image" style="${imageStyle}">${imageContent}</div>
-            <div class="product-item-details">
-              <strong>${product.name}</strong><br>
-              <small>${product.category} • ${product.condition} • ${product.size}</small><br>
-              <small><strong>KES ${product.price}</strong></small>
-            </div>
-            <button class="remove-btn" onclick="addToCart(${product.id})">Add to Cart</button>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function renderOrders() {
-      const ordersContainer = document.getElementById('orders-container');
-      const orders = JSON.parse(localStorage.getItem('phancyOrders') || '[]');
-      
-      if (!orders.length) {
-        ordersContainer.innerHTML = '<p>You have no orders yet. Start shopping now!</p>';
-        return;
-      }
-      
-      ordersContainer.innerHTML = orders.map(order => `
-        <div class="order-card">
-          <h3>Order #${order.id}</h3>
-          <div class="order-info">
-            <div><strong>Date:</strong> ${new Date(order.placedAt).toLocaleDateString()}</div>
-            <div><strong>Status:</strong> <span style="color: ${order.status === 'shipped' ? 'green' : order.status === 'confirmed' ? 'blue' : 'orange'};">${order.status.toUpperCase()}</span></div>
-            <div><strong>Amount:</strong> KES ${order.total}</div>
-            <div><strong>Items:</strong> ${order.items.length}</div>
-          </div>
-          <div class="order-items">
-            ${order.items.map(item => `<div>${item.name} x ${item.quantity} — KES ${item.price}</div>`).join('')}
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function addToCart(productId) {
-      const products = JSON.parse(localStorage.getItem('phancyProducts') || '[]');
-      const product = products.find(p => p.id === productId);
-      
-      if (!product) return;
-      
-      const cart = JSON.parse(localStorage.getItem('phancyCart') || '[]');
-      const existing = cart.find(item => item.id === productId);
-      
-      if (existing) {
-        existing.quantity += 1;
-      } else {
-        cart.push({ ...product, quantity: 1 });
-      }
-      
-      localStorage.setItem('phancyCart', JSON.stringify(cart));
-      alert(`${product.name} added to cart!`);
-    }
-
-    function addAddress() {
-      alert('Address management feature coming soon!');
-    }
-
-    function addPayment() {
-      alert('Payment method management feature coming soon!');
-    }
-
     function showTab(event, tabName) {
       event.preventDefault();
-      
-      // Hide all tabs
-      const tabs = document.querySelectorAll('.tab-content');
-      tabs.forEach(tab => tab.classList.remove('active'));
-
-      // Remove active class from all buttons
-      const buttons = document.querySelectorAll('.tab-btn');
-      buttons.forEach(btn => btn.classList.remove('active'));
-
-      // Show selected tab
+      document.querySelectorAll('.tab-content').forEach((tab) => tab.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach((btn) => btn.classList.remove('active'));
       document.getElementById(tabName).classList.add('active');
-
-      // Add active class to clicked button
       event.target.classList.add('active');
-
-      // Render wishlist if we're showing it
-      if (tabName === 'wishlist') {
-        renderWishlist();
-      }
-      
-      // Render orders if we're showing it
-      if (tabName === 'orders') {
-        renderOrders();
-      }
     }
-
-    function logout() {
-      if (confirm('Are you sure you want to logout?')) {
-        localStorage.removeItem('phancyClientLoggedIn');
-        localStorage.removeItem('phancyClientEmail');
-        window.location.href = 'client-login.html';
-      }
-    }
-
-    // Initialize on page load
-    window.addEventListener('DOMContentLoaded', initDashboard);
-    
-    // Listen for product updates from other tabs
-    window.addEventListener('storage', (event) => {
-      if (event.key === 'phancyProducts') {
-        renderWishlist();
-      }
-      if (event.key === 'phancyOrders') {
-        renderOrders();
-      }
-    });
   </script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
+     
+     
