@@ -37,6 +37,18 @@
     .form-group input[disabled] { background: #f5f5f5; color: #666; }
     .btn-save { background-color: #28a745; color: white; border: none; padding: 12px 26px; border-radius: 4px; cursor: pointer; font-size: 14px; }
     .btn-save:hover { background-color: #218838; }
+    .recently-viewed-item {
+      display: flex; gap: 14px; align-items: center; background: #f9f9f9;
+      border-radius: 6px; padding: 12px; margin-bottom: 12px;
+    }
+    .recently-viewed-image {
+      flex-shrink: 0; width: 64px; height: 64px; border-radius: 6px;
+      background-color: #e9ecef; background-size: cover; background-position: center;
+      display: flex; align-items: center; justify-content: center; color: #888; font-size: 11px; text-align: center;
+    }
+    .recently-viewed-details { flex: 1; min-width: 0; }
+    .recently-viewed-details strong { display: block; font-size: 14px; }
+    .recently-viewed-details span { font-size: 13px; color: #555; }
     @media (max-width: 768px) {
       .dashboard-container { flex-direction: column; }
       .dashboard-sidebar { position: relative; width: 100%; height: auto; display: flex; flex-wrap: wrap; }
@@ -52,6 +64,7 @@
       <ul>
         <li><button class="tab-btn active" onclick="showTab(event, 'profile')">Profile</button></li>
         <li><button class="tab-btn" onclick="showTab(event, 'orders')">My Orders</button></li>
+        <li><button class="tab-btn" onclick="showTab(event, 'recently-viewed')">Recently Viewed</button></li>
       </ul>
     </aside>
 
@@ -84,6 +97,12 @@
           <h2>Order History</h2>
           <div id="my-orders-list"><p>Loading your orders...</p></div>
         </div>
+
+        <div id="recently-viewed" class="tab-content">
+          <h2>Recently Viewed</h2>
+          <p style="font-size:13px; color:#666; margin-top:-8px;">Products you've looked at recently — click below to shop again.</p>
+          <div id="recently-viewed-list"><p>Loading...</p></div>
+        </div>
       </div>
     </main>
   </div>
@@ -103,5 +122,3 @@
   <script src="script.js"></script>
 </body>
 </html>
-     
-     
